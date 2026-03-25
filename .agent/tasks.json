@@ -4,7 +4,7 @@
   {"id": "TASK-003", "title": "Phase 0: Permissions, approvals, and event backbone docs", "passes": true, "priority": 1},
   {"id": "TASK-004", "title": "Phase 0: Rollout plan, test strategy, and exception model docs", "passes": true, "priority": 1},
   {"id": "TASK-005", "title": "Phase 1A: Project scaffolding and dependency installation", "passes": true, "priority": 1},
-  {"id": "TASK-006", "title": "Phase 1A: Tailwind v4, design tokens, and shadcn/ui primitives", "passes": false, "priority": 1},
+  {"id": "TASK-006", "title": "Phase 1A: Tailwind v4, design tokens, and shadcn/ui primitives", "passes": true, "priority": 1},
   {"id": "TASK-007", "title": "Phase 1A: Prisma, Redis, Socket.io singletons and root layout", "passes": false, "priority": 1},
   {"id": "TASK-008", "title": "Phase 1B: Database schema - platform core models and enums", "passes": false, "priority": 1},
   {"id": "TASK-009", "title": "Phase 1B: Initial migration, seed admin user, default roles/permissions", "passes": false, "priority": 1},
