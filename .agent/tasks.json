@@ -13,7 +13,7 @@
   {"id": "TASK-012", "title": "Phase 1D: API middleware (auth, RBAC, rate-limit, error, pagination, validation, scope)", "passes": true, "priority": 2},
   {"id": "TASK-013", "title": "Phase 1E: Shared UI - DataTable, StatusBadge, Timeline", "passes": true, "priority": 2},
   {"id": "TASK-014", "title": "Phase 1E: Shared UI - ExceptionCard, ApprovalDialog, ConfirmDialog, PageHeader", "passes": true, "priority": 2},
-  {"id": "TASK-015", "title": "Phase 1E: Shared UI - KPICard, EmptyState, LoadingState, FileUpload, SearchCommand", "passes": false, "priority": 2},
+  {"id": "TASK-015", "title": "Phase 1E: Shared UI - KPICard, EmptyState, LoadingState, FileUpload, SearchCommand", "passes": true, "priority": 2},
   {"id": "TASK-016", "title": "Phase 2A: Database schema - business core models (Customer, Product, Vendor, Inventory)", "passes": false, "priority": 2},
   {"id": "TASK-017", "title": "Phase 2A: Database schema - operational models (Order, Truck, Route, Delivery, Yard, Receiving)", "passes": false, "priority": 2},
   {"id": "TASK-018", "title": "Phase 2A: Database schema - support models (PO, Collections, CRM, Import, Attachments) + migration", "passes": false, "priority": 2},
