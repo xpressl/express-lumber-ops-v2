@@ -9,7 +9,7 @@
   {"id": "TASK-008", "title": "Phase 1B: Database schema - platform core models and enums", "passes": true, "priority": 1},
   {"id": "TASK-009", "title": "Phase 1B: Initial migration, seed admin user, default roles/permissions", "passes": true, "priority": 1},
   {"id": "TASK-010", "title": "Phase 1C: Auth, permission, and feature flag services", "passes": true, "priority": 2},
-  {"id": "TASK-011", "title": "Phase 1C: Approval, audit, exception, and notification services", "passes": false, "priority": 2},
+  {"id": "TASK-011", "title": "Phase 1C: Approval, audit, exception, and notification services", "passes": true, "priority": 2},
   {"id": "TASK-012", "title": "Phase 1D: API middleware (auth, RBAC, rate-limit, error, pagination, validation, scope)", "passes": false, "priority": 2},
   {"id": "TASK-013", "title": "Phase 1E: Shared UI - DataTable, StatusBadge, Timeline", "passes": false, "priority": 2},
   {"id": "TASK-014", "title": "Phase 1E: Shared UI - ExceptionCard, ApprovalDialog, ConfirmDialog, PageHeader", "passes": false, "priority": 2},
