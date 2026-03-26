@@ -8,6 +8,8 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { format } from "date-fns";
+import { useAuth } from "@/hooks/use-auth";
+import { NewOrderDialog } from "@/components/orders/new-order-dialog";
 
 interface OrderRow {
   id: string;
@@ -38,10 +40,12 @@ const columns: DataTableColumn<OrderRow>[] = [
 
 export default function OrdersPage() {
   const router = useRouter();
+  const { defaultLocationId } = useAuth();
   const [data, setData] = React.useState<OrderRow[]>([]);
   const [total, setTotal] = React.useState(0);
   const [page, setPage] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [newOrderOpen, setNewOrderOpen] = React.useState(false);
 
   const fetchOrders = React.useCallback(async (p = 1, search?: string) => {
     setIsLoading(true);
@@ -59,7 +63,7 @@ export default function OrdersPage() {
     <div className="space-y-8">
       <PageHeader title="Orders" description="Order lifecycle management"
         breadcrumbs={[{ label: "Orders" }]}
-        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />New Order</Button>} />
+        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4" onClick={() => setNewOrderOpen(true)}><Plus size={15} />New Order</Button>} />
 
       <DataTable columns={columns} data={data} total={total} page={page}
         totalPages={Math.ceil(total / 20)}
@@ -68,6 +72,13 @@ export default function OrdersPage() {
         searchPlaceholder="Search by order#, customer, PO..."
         isLoading={isLoading} emptyMessage="No orders found"
         rowKey={(r) => r.id} onRowClick={(r) => router.push(`/orders/${r.id}`)} />
+
+      <NewOrderDialog
+        open={newOrderOpen}
+        onOpenChange={setNewOrderOpen}
+        onSuccess={() => void fetchOrders(1)}
+        locationId={defaultLocationId ?? ""}
+      />
     </div>
   );
 }

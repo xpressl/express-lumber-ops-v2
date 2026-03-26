@@ -1,4 +1,4 @@
-import { redis } from "@/lib/redis";
+import { safeIncr, safeExpire, safeTtl } from "@/lib/redis";
 import { errorResponse } from "./error-handler";
 import type { NextResponse } from "next/server";
 
@@ -25,31 +25,31 @@ export async function checkRateLimit(
   const { max, windowSeconds, prefix } = { ...DEFAULT_CONFIG, ...config };
   const key = `${prefix}${identifier}`;
 
-  try {
-    const current = await redis.incr(key);
+  const current = await safeIncr(key);
 
-    if (current === 1) {
-      await redis.expire(key, windowSeconds);
-    }
-
-    const ttl = await redis.ttl(key);
-    const resetAt = new Date(Date.now() + ttl * 1000);
-    const remaining = Math.max(0, max - current);
-
-    if (current > max) {
-      return {
-        allowed: false,
-        remaining: 0,
-        resetAt,
-        response: errorResponse(429, "RATE_LIMITED", "Too many requests. Please try again later."),
-      };
-    }
-
-    return { allowed: true, remaining, resetAt };
-  } catch {
-    // If Redis is down, allow the request (fail open)
+  // If Redis is down, allow the request (fail open)
+  if (current === null) {
     return { allowed: true, remaining: max, resetAt: new Date(Date.now() + windowSeconds * 1000) };
   }
+
+  if (current === 1) {
+    await safeExpire(key, windowSeconds);
+  }
+
+  const ttl = await safeTtl(key);
+  const resetAt = new Date(Date.now() + ttl * 1000);
+  const remaining = Math.max(0, max - current);
+
+  if (current > max) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetAt,
+      response: errorResponse(429, "RATE_LIMITED", "Too many requests. Please try again later."),
+    };
+  }
+
+  return { allowed: true, remaining, resetAt };
 }
 
 /** Rate limit configs for different endpoint types */

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { redis } from "@/lib/redis";
+import { safeGet, safeSetex, safeKeys, safeDel } from "@/lib/redis";
 import type { FlagState } from "@prisma/client";
 
 const CACHE_TTL = 60; // 1 minute (flags change more frequently during rollout)
@@ -29,12 +29,8 @@ export async function evaluateFlag(
 ): Promise<FlagState> {
   const cacheKey = `${CACHE_PREFIX}${flagCode}:${context.userId ?? "anon"}:${context.locationId ?? "any"}`;
 
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) return cached as FlagState;
-  } catch {
-    // Redis unavailable
-  }
+  const cached = await safeGet(cacheKey);
+  if (cached) return cached as FlagState;
 
   const flag = await prisma.featureFlag.findUnique({
     where: { code: flagCode },
@@ -80,11 +76,7 @@ export async function evaluateFlag(
     if (userAssignment) resolvedState = userAssignment.state;
   }
 
-  try {
-    await redis.setex(cacheKey, CACHE_TTL, resolvedState);
-  } catch {
-    // Redis unavailable
-  }
+  await safeSetex(cacheKey, CACHE_TTL, resolvedState);
 
   return resolvedState;
 }
@@ -109,12 +101,8 @@ export async function evaluateAllFlags(context: {
 
 /** Invalidate all flag caches (call after flag changes) */
 export async function invalidateFlagCache(): Promise<void> {
-  try {
-    const keys = await redis.keys(`${CACHE_PREFIX}*`);
-    if (keys.length > 0) {
-      await redis.del(...keys);
-    }
-  } catch {
-    // Redis unavailable
+  const keys = await safeKeys(`${CACHE_PREFIX}*`);
+  if (keys.length > 0) {
+    await safeDel(...keys);
   }
 }

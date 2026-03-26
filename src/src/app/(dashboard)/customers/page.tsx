@@ -7,6 +7,7 @@ import { DataTable, type DataTableColumn } from "@/components/shared/data-table"
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { CreateCustomerDialog } from "@/components/customers/create-customer-dialog";
 
 interface CustomerRow {
   id: string;
@@ -35,6 +36,7 @@ export default function CustomersPage() {
   const [total, setTotal] = React.useState(0);
   const [page, setPage] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [showCreate, setShowCreate] = React.useState(false);
 
   const fetchCustomers = React.useCallback(async (p = 1, search?: string) => {
     setIsLoading(true);
@@ -52,7 +54,11 @@ export default function CustomersPage() {
     <div className="space-y-8">
       <PageHeader title="Customers" description="Customer directory and account management"
         breadcrumbs={[{ label: "Customers" }]}
-        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />New Customer</Button>} />
+        actions={
+          <Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4" onClick={() => setShowCreate(true)}>
+            <Plus size={15} />New Customer
+          </Button>
+        } />
 
       <DataTable columns={columns} data={data} total={total} page={page}
         totalPages={Math.ceil(total / 20)}
@@ -61,6 +67,12 @@ export default function CustomersPage() {
         searchPlaceholder="Search by name, account#..."
         isLoading={isLoading} emptyMessage="No customers found"
         rowKey={(r) => r.id} onRowClick={(r) => router.push(`/customers/${r.id}`)} />
+
+      <CreateCustomerDialog
+        open={showCreate}
+        onOpenChange={setShowCreate}
+        onCreated={() => void fetchCustomers(1)}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { redis } from "@/lib/redis";
+import { safeGet, safeSetex, safeDel } from "@/lib/redis";
 import type { ScopeType } from "@prisma/client";
 
 const CACHE_TTL = 300; // 5 minutes
@@ -61,12 +61,8 @@ export async function canAccess(
 export async function getUserPermissions(userId: string): Promise<ResolvedPermission[]> {
   const cacheKey = `${CACHE_PREFIX}${userId}`;
 
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached) as ResolvedPermission[];
-  } catch {
-    // Redis unavailable, proceed without cache
-  }
+  const cached = await safeGet(cacheKey);
+  if (cached) return JSON.parse(cached) as ResolvedPermission[];
 
   const assignments = await prisma.userRoleAssignment.findMany({
     where: {
@@ -104,11 +100,7 @@ export async function getUserPermissions(userId: string): Promise<ResolvedPermis
 
   const result = Array.from(permMap.values());
 
-  try {
-    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
-  } catch {
-    // Redis unavailable
-  }
+  await safeSetex(cacheKey, CACHE_TTL, JSON.stringify(result));
 
   return result;
 }
@@ -124,11 +116,7 @@ export async function getUserLocationIds(userId: string): Promise<string[]> {
 
 /** Invalidate cached permissions for a user */
 export async function invalidatePermissionCache(userId: string): Promise<void> {
-  try {
-    await redis.del(`${CACHE_PREFIX}${userId}`);
-  } catch {
-    // Redis unavailable
-  }
+  await safeDel(`${CACHE_PREFIX}${userId}`);
 }
 
 /** Get field restrictions for a user on a specific resource type */

@@ -7,6 +7,7 @@ import { DataTable, type DataTableColumn } from "@/components/shared/data-table"
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { UploadDialog } from "@/components/imports/upload-dialog";
 
 interface ImportRow { id: string; type: string; fileName: string; status: string; totalRows: number; createdRows: number; errorRows: number; confidenceScore: number | null; createdAt: string }
 
@@ -26,21 +27,42 @@ export default function ImportsPage() {
   const router = useRouter();
   const [data, setData] = React.useState<ImportRow[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [uploadOpen, setUploadOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    (async () => {
-      try { const r = await fetch("/api/imports"); if (r.ok) setData(await r.json()); } finally { setIsLoading(false); }
-    })();
+  const fetchImports = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const r = await fetch("/api/imports");
+      if (r.ok) setData(await r.json());
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  React.useEffect(() => { fetchImports(); }, [fetchImports]);
 
   return (
     <div className="space-y-8">
       <PageHeader title="Import Bridge" description="Upload, map, review, and approve data imports from ERP"
         breadcrumbs={[{ label: "Imports" }]}
-        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />Upload Import</Button>} />
+        actions={
+          <Button
+            className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"
+            onClick={() => setUploadOpen(true)}
+          >
+            <Plus size={15} />Upload Import
+          </Button>
+        }
+      />
       <DataTable columns={columns} data={data} total={data.length} isLoading={isLoading}
         emptyMessage="No imports" rowKey={(r) => r.id}
         onRowClick={(r) => router.push(`/imports/${r.id}`)} />
+
+      <UploadDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        onSuccess={fetchImports}
+      />
     </div>
   );
 }
