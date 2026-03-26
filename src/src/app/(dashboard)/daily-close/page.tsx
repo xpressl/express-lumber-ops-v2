@@ -20,14 +20,14 @@ const CLOSE_SECTIONS = [
 
 export default function DailyClosePage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Daily Close" description="End-of-day operational reconciliation"
         breadcrumbs={[{ label: "Daily Close" }]} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {CLOSE_SECTIONS.map((section) => (
-          <Card key={section}>
-            <CardHeader className="pb-2"><CardTitle className="text-sm">{section}</CardTitle></CardHeader>
+          <Card key={section} className="card-warm">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">{section}</CardTitle></CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">Data populated from live operations</p>
             </CardContent>

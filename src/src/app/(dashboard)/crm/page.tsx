@@ -6,6 +6,7 @@ import { DataTable, type DataTableColumn } from "@/components/shared/data-table"
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface LeadRow { id: string; companyName: string; contactName: string; status: string; source: string | null; createdAt: string }
 interface EstimateRow { id: string; estimateNumber: string; jobName: string | null; status: string; totalAmount: number; _count: { lines: number }; createdAt: string }
@@ -41,21 +42,21 @@ export default function CRMPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="CRM" description="Leads, estimates, and revenue recovery"
         breadcrumbs={[{ label: "CRM" }]}
-        actions={<Button className="font-mono uppercase tracking-wider text-xs">+ New Lead</Button>} />
+        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />New Lead</Button>} />
 
       <Tabs defaultValue="leads">
-        <TabsList>
-          <TabsTrigger value="leads">Leads ({leads.length})</TabsTrigger>
-          <TabsTrigger value="estimates">Estimates ({estimates.length})</TabsTrigger>
+        <TabsList className="bg-muted/30 border border-border/40 p-1 rounded-xl h-auto">
+          <TabsTrigger value="leads" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Leads ({leads.length})</TabsTrigger>
+          <TabsTrigger value="estimates" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Estimates ({estimates.length})</TabsTrigger>
         </TabsList>
-        <TabsContent value="leads" className="mt-4">
+        <TabsContent value="leads" className="mt-5">
           <DataTable columns={leadColumns} data={leads} total={leads.length} isLoading={isLoading}
             searchPlaceholder="Search leads..." emptyMessage="No leads" rowKey={(r) => r.id} />
         </TabsContent>
-        <TabsContent value="estimates" className="mt-4">
+        <TabsContent value="estimates" className="mt-5">
           <DataTable columns={estimateColumns} data={estimates} total={estimates.length} isLoading={isLoading}
             emptyMessage="No estimates" rowKey={(r) => r.id} />
         </TabsContent>

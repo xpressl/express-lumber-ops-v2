@@ -27,16 +27,16 @@ const categories = [...new Set(REPORTS.map((r) => r.category))];
 
 export default function ReportsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Reports" description="Operational KPI reports and analytics"
         breadcrumbs={[{ label: "Reports" }]} />
 
       {categories.map((cat) => (
         <div key={cat}>
-          <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">{cat}</h3>
+          <h3 className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70 mb-3">{cat}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {REPORTS.filter((r) => r.category === cat).map((report) => (
-              <Card key={report.key} className="hover:bg-muted/30 transition-colors cursor-pointer">
+              <Card key={report.key} className="card-warm hover:bg-muted/30 hover:shadow-md transition-all duration-200 cursor-pointer">
                 <CardContent className="py-3">
                   <span className="text-sm font-medium">{report.name}</span>
                 </CardContent>

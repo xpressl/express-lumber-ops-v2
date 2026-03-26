@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface CustomerRow {
   id: string;
@@ -48,10 +49,10 @@ export default function CustomersPage() {
   React.useEffect(() => { void fetchCustomers(); }, [fetchCustomers]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Customers" description="Customer directory and account management"
         breadcrumbs={[{ label: "Customers" }]}
-        actions={<Button className="font-mono uppercase tracking-wider text-xs">+ New Customer</Button>} />
+        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />New Customer</Button>} />
 
       <DataTable columns={columns} data={data} total={total} page={page}
         totalPages={Math.ceil(total / 20)}

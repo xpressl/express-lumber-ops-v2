@@ -30,19 +30,19 @@ export default function PricingPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Pricing" description="Cost changes, margin control, and quote risk"
         breadcrumbs={[{ label: "Pricing" }]} />
       <Tabs defaultValue="changes">
-        <TabsList>
-          <TabsTrigger value="changes">Cost Changes ({changes.length})</TabsTrigger>
-          <TabsTrigger value="quotes">Quotes at Risk</TabsTrigger>
+        <TabsList className="bg-muted/30 border border-border/40 p-1 rounded-xl h-auto">
+          <TabsTrigger value="changes" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Cost Changes ({changes.length})</TabsTrigger>
+          <TabsTrigger value="quotes" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Quotes at Risk</TabsTrigger>
         </TabsList>
-        <TabsContent value="changes" className="mt-4">
+        <TabsContent value="changes" className="mt-5">
           <DataTable columns={columns} data={changes} total={changes.length} isLoading={isLoading}
             emptyMessage="No recent cost changes" rowKey={(r) => r.id} />
         </TabsContent>
-        <TabsContent value="quotes" className="mt-4 text-center text-muted-foreground text-sm py-8">
+        <TabsContent value="quotes" className="mt-5 text-center text-muted-foreground text-sm py-8">
           Quotes affected by recent cost changes will appear here.
         </TabsContent>
       </Tabs>

@@ -53,7 +53,7 @@ export default function ProductsPage() {
   React.useEffect(() => { void fetch_(); }, [fetch_]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Product Catalogue" description="Products with cost, sell price, margin, and vendor info"
         breadcrumbs={[{ label: "Products" }]} />
       <DataTable columns={columns} data={data} total={total} page={page}

@@ -46,7 +46,7 @@ export default function AuditLogPage() {
   React.useEffect(() => { void fetchAudit(); }, [fetchAudit]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Audit Log" description="Complete history of system actions"
         breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Audit Log" }]} />
       <DataTable columns={columns} data={data} total={total} page={page} totalPages={Math.ceil(total / 30)}

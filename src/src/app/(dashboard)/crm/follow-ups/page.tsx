@@ -21,7 +21,7 @@ export default function FollowUpsPage() {
   if (isLoading) return <LoadingState rows={4} />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Follow-Ups" description="Estimates requiring follow-up action"
         breadcrumbs={[{ label: "CRM", href: "/crm" }, { label: "Follow-Ups" }]} />
       {items.length === 0 ? (

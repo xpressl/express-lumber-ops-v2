@@ -26,7 +26,7 @@ export default function SecurityEventsPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Security Events" description="Login activity, permission changes, sensitive access"
         breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Security" }]} />
       {isLoading ? null : events.length === 0 ? (

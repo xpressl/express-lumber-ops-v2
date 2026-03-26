@@ -78,7 +78,7 @@ export default function OrderDetailPage() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title={order.orderNumber}
         description={`${order.customer.companyName} · ${order.type} · ${format(new Date(order.requestedDate), "MMM d, yyyy")}`}
         breadcrumbs={[{ label: "Orders", href: "/orders" }, { label: order.orderNumber }]} />
@@ -94,21 +94,21 @@ export default function OrderDetailPage() {
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card><CardContent className="pt-3"><p className="text-[10px] font-mono text-muted-foreground">AMOUNT</p><p className="text-lg font-mono font-semibold">${order.totalAmount ? Number(order.totalAmount).toLocaleString() : "—"}</p></CardContent></Card>
-        <Card><CardContent className="pt-3"><p className="text-[10px] font-mono text-muted-foreground">ITEMS</p><p className="text-lg font-mono font-semibold">{order.items.length}</p></CardContent></Card>
-        <Card><CardContent className="pt-3"><p className="text-[10px] font-mono text-muted-foreground">WEIGHT</p><p className="text-lg font-mono font-semibold">{order.totalWeight ? `${Number(order.totalWeight).toLocaleString()} lbs` : "—"}</p></CardContent></Card>
-        <Card><CardContent className="pt-3"><p className="text-[10px] font-mono text-muted-foreground">READY</p><p className={`text-lg font-mono font-semibold ${order.readinessPercent === 100 ? "text-success" : "text-warning"}`}>{order.readinessPercent}%</p></CardContent></Card>
-        {order.codFlag && <Card><CardContent className="pt-3"><p className="text-[10px] font-mono text-muted-foreground">COD</p><p className="text-lg font-mono font-semibold text-warning">${order.codAmount ? Number(order.codAmount).toLocaleString() : "—"}</p></CardContent></Card>}
+        <Card className="card-warm"><CardContent className="pt-4"><p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">AMOUNT</p><p className="text-2xl font-light tracking-tight font-[family-name:var(--font-heading)]">${order.totalAmount ? Number(order.totalAmount).toLocaleString() : "—"}</p></CardContent></Card>
+        <Card className="card-warm"><CardContent className="pt-4"><p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">ITEMS</p><p className="text-2xl font-light tracking-tight font-[family-name:var(--font-heading)]">{order.items.length}</p></CardContent></Card>
+        <Card className="card-warm"><CardContent className="pt-4"><p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">WEIGHT</p><p className="text-2xl font-light tracking-tight font-[family-name:var(--font-heading)]">{order.totalWeight ? `${Number(order.totalWeight).toLocaleString()} lbs` : "—"}</p></CardContent></Card>
+        <Card className="card-warm"><CardContent className="pt-4"><p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">READY</p><p className={`text-2xl font-light tracking-tight font-[family-name:var(--font-heading)] ${order.readinessPercent === 100 ? "text-success" : "text-warning"}`}>{order.readinessPercent}%</p></CardContent></Card>
+        {order.codFlag && <Card className="card-warm"><CardContent className="pt-4"><p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">COD</p><p className="text-2xl font-light tracking-tight font-[family-name:var(--font-heading)] text-warning">${order.codAmount ? Number(order.codAmount).toLocaleString() : "—"}</p></CardContent></Card>}
       </div>
 
       <Tabs defaultValue="items">
-        <TabsList>
-          <TabsTrigger value="items">Line Items</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="details">Details</TabsTrigger>
+        <TabsList className="bg-muted/30 border border-border/40 p-1 rounded-xl h-auto">
+          <TabsTrigger value="items" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Line Items</TabsTrigger>
+          <TabsTrigger value="timeline" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Timeline</TabsTrigger>
+          <TabsTrigger value="details" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Details</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="items" className="mt-4">
+        <TabsContent value="items" className="mt-5">
           <Card>
             <CardContent className="p-0">
               <table className="w-full text-sm">
@@ -139,13 +139,13 @@ export default function OrderDetailPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="timeline" className="mt-4">
+        <TabsContent value="timeline" className="mt-5">
           <Card><CardHeader><CardTitle className="text-base">Order Events</CardTitle></CardHeader>
             <CardContent><Timeline events={timelineEvents} /></CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="details" className="mt-4">
+        <TabsContent value="details" className="mt-5">
           <Card><CardContent className="space-y-2 pt-4 text-sm">
             <div className="flex justify-between"><span className="text-muted-foreground">Customer PO</span><span className="font-mono">{order.customerPO ?? "—"}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Customer Status</span><StatusBadge status={order.customer.status} size="sm" /></div>

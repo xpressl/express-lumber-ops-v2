@@ -45,22 +45,22 @@ export default function PickupQueuePage() {
   if (isLoading) return <LoadingState rows={4} />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Pickup Queue" description="Customer pickup and will-call management"
         breadcrumbs={[{ label: "Pickup" }]} />
 
       {tickets.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground text-sm">No pickups in queue</CardContent></Card>
+        <Card><CardContent className="py-12 text-center text-muted-foreground text-base">No pickups in queue</CardContent></Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {tickets.map((t) => (
             <Card key={t.id} className="border-l-4 border-l-primary">
-              <CardContent className="pt-4 space-y-3">
+              <CardContent className="pt-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs">{t.orderId.slice(0, 8)}</span>
-                  <StatusBadge status={t.status} size="sm" />
+                  <span className="font-mono text-base">{t.orderId.slice(0, 8)}</span>
+                  <StatusBadge status={t.status} size="default" />
                 </div>
-                <div className="text-xs text-muted-foreground space-y-1">
+                <div className="text-sm text-muted-foreground space-y-1">
                   {t.lane && <div>Lane: <span className="font-mono text-foreground">{t.lane}</span></div>}
                   {t.bay && <div>Bay: <span className="font-mono text-foreground">{t.bay}</span></div>}
                   <div>Waiting: {formatDistanceToNow(new Date(t.createdAt))}</div>
@@ -68,10 +68,10 @@ export default function PickupQueuePage() {
                 </div>
                 <div className="flex gap-2">
                   {t.status === "WAITING" && (
-                    <Button size="sm" variant="outline" className="text-xs flex-1" onClick={() => void handleAction(t.id, "arrived")}>Customer Arrived</Button>
+                    <Button size="sm" variant="outline" className="text-sm h-11 flex-1" onClick={() => void handleAction(t.id, "arrived")}>Customer Arrived</Button>
                   )}
                   {t.status === "READY_AT_LANE" && (
-                    <Button size="sm" className="text-xs flex-1" onClick={() => void handleAction(t.id, "handoff")}>Handoff</Button>
+                    <Button size="sm" className="text-sm h-11 flex-1" onClick={() => void handleAction(t.id, "handoff")}>Handoff</Button>
                   )}
                 </div>
               </CardContent>

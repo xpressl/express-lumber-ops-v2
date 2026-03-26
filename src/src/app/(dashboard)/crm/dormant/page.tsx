@@ -23,7 +23,7 @@ export default function DormantPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Dormant Accounts" description="Active customers with no orders in 90+ days"
         breadcrumbs={[{ label: "CRM", href: "/crm" }, { label: "Dormant" }]} />
       <DataTable columns={columns} data={data} total={data.length} isLoading={isLoading}

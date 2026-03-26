@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Search, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 /** Column definition for DataTable */
 export interface DataTableColumn<T> {
@@ -96,44 +97,49 @@ export function DataTable<T>({
   }
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         {onSearch && (
-          <Input
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="max-w-xs h-9 font-mono text-sm bg-muted/50"
-          />
+          <div className="relative max-w-xs">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-9 h-9 text-[13px] bg-muted/30 border-border/50 focus:bg-background transition-colors duration-200"
+            />
+          </div>
         )}
         {toolbar}
         {total !== undefined && (
-          <span className="text-xs text-muted-foreground font-mono ml-auto">
+          <span className="text-[12px] text-muted-foreground/60 font-mono ml-auto tabular-nums">
             {total.toLocaleString()} record{total !== 1 ? "s" : ""}
           </span>
         )}
       </div>
 
       {/* Table */}
-      <div className="rounded-md border border-border/50 overflow-hidden">
+      <div className="rounded-xl border border-border/50 overflow-hidden card-warm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/30 hover:bg-muted/30">
+            <TableRow className="bg-muted/20 hover:bg-muted/20 border-b border-border/40">
               {visibleColumns.map((col) => (
                 <TableHead
                   key={col.id}
                   className={cn(
-                    "text-xs font-mono uppercase tracking-wider text-muted-foreground h-9",
-                    col.sortable && "cursor-pointer select-none hover:text-foreground transition-colors",
+                    "text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground/60 h-10 px-4",
+                    col.sortable && "cursor-pointer select-none hover:text-foreground transition-colors duration-200",
                     col.className,
                   )}
                   onClick={col.sortable ? () => handleSort(col.id) : undefined}
                 >
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1.5">
                     {col.header}
                     {col.sortable && sortField === col.id && (
-                      <span className="text-primary">{sortOrder === "asc" ? "↑" : "↓"}</span>
+                      sortOrder === "asc"
+                        ? <ArrowUp size={12} className="text-primary" />
+                        : <ArrowDown size={12} className="text-primary" />
                     )}
                   </span>
                 </TableHead>
@@ -142,19 +148,24 @@ export function DataTable<T>({
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              Array.from({ length: limit }).map((_, i) => (
-                <TableRow key={i}>
+              Array.from({ length: Math.min(limit, 8) }).map((_, i) => (
+                <TableRow key={i} className="border-b border-border/20">
                   {visibleColumns.map((col) => (
-                    <TableCell key={col.id} className={col.className}>
-                      <Skeleton className="h-4 w-full" />
+                    <TableCell key={col.id} className={cn("px-4 py-3", col.className)}>
+                      <Skeleton className="h-4 w-full rounded-md" />
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={visibleColumns.length} className="h-32 text-center text-muted-foreground">
-                  {emptyMessage}
+                <TableCell colSpan={visibleColumns.length} className="h-40 text-center">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground/50">
+                    <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center">
+                      <Search size={20} className="text-muted-foreground/30" />
+                    </div>
+                    <span className="text-[13px]">{emptyMessage}</span>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -162,13 +173,14 @@ export function DataTable<T>({
                 <TableRow
                   key={rowKey ? rowKey(row) : i}
                   className={cn(
-                    "transition-colors",
-                    onRowClick && "cursor-pointer hover:bg-muted/50",
+                    "transition-colors duration-150 border-b border-border/20 last:border-0",
+                    onRowClick && "cursor-pointer hover:bg-muted/40",
+                    !onRowClick && "hover:bg-muted/20",
                   )}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                 >
                   {visibleColumns.map((col) => (
-                    <TableCell key={col.id} className={cn("text-sm", col.className)}>
+                    <TableCell key={col.id} className={cn("text-[13px] px-4 py-3", col.className)}>
                       {getCellValue(row, col)}
                     </TableCell>
                   ))}
@@ -181,8 +193,8 @@ export function DataTable<T>({
 
       {/* Pagination */}
       {totalPages > 1 && onPageChange && (
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground font-mono">
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-[12px] text-muted-foreground/50 font-mono tabular-nums">
             Page {page} of {totalPages}
           </span>
           <div className="flex gap-1">
@@ -191,18 +203,18 @@ export function DataTable<T>({
               size="sm"
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="h-7 px-2 text-xs font-mono"
+              className="h-8 w-8 p-0 rounded-lg"
             >
-              Prev
+              <ChevronLeft size={14} />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="h-7 px-2 text-xs font-mono"
+              className="h-8 w-8 p-0 rounded-lg"
             >
-              Next
+              <ChevronRight size={14} />
             </Button>
           </div>
         </div>

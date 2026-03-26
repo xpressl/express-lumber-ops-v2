@@ -7,6 +7,7 @@ import { DataTable, type DataTableColumn } from "@/components/shared/data-table"
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface VendorRow { id: string; code: string; name: string; status: string; reliabilityScore: number | null; _count: { purchaseOrders: number; prices: number } }
 interface PORow { id: string; poNumber: string; vendor: { name: string }; status: string; totalAmount: number; _count: { lines: number }; createdAt: string }
@@ -45,30 +46,30 @@ export default function PurchasingPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Purchasing" description="Vendors, POs, and three-way match"
         breadcrumbs={[{ label: "Purchasing" }]}
-        actions={<Button className="font-mono uppercase tracking-wider text-xs">+ New PO</Button>} />
+        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />New PO</Button>} />
 
       <Tabs defaultValue="vendors">
-        <TabsList>
-          <TabsTrigger value="vendors">Vendors ({vendors.length})</TabsTrigger>
-          <TabsTrigger value="pos">Purchase Orders ({pos.length})</TabsTrigger>
-          <TabsTrigger value="match">Match Queue</TabsTrigger>
-          <TabsTrigger value="claims">Claims</TabsTrigger>
+        <TabsList className="bg-muted/30 border border-border/40 p-1 rounded-xl h-auto">
+          <TabsTrigger value="vendors" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Vendors ({vendors.length})</TabsTrigger>
+          <TabsTrigger value="pos" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Purchase Orders ({pos.length})</TabsTrigger>
+          <TabsTrigger value="match" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Match Queue</TabsTrigger>
+          <TabsTrigger value="claims" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Claims</TabsTrigger>
         </TabsList>
-        <TabsContent value="vendors" className="mt-4">
+        <TabsContent value="vendors" className="mt-5">
           <DataTable columns={vendorColumns} data={vendors} total={vendors.length} isLoading={isLoading}
             searchPlaceholder="Search vendors..." emptyMessage="No vendors" rowKey={(r) => r.id} />
         </TabsContent>
-        <TabsContent value="pos" className="mt-4">
+        <TabsContent value="pos" className="mt-5">
           <DataTable columns={poColumns} data={pos} total={pos.length} isLoading={isLoading}
             emptyMessage="No purchase orders" rowKey={(r) => r.id} />
         </TabsContent>
-        <TabsContent value="match" className="mt-4 text-center text-muted-foreground text-sm py-8">
+        <TabsContent value="match" className="mt-5 text-center text-muted-foreground text-sm py-8">
           Three-way match review queue (PO vs Receipt vs Invoice)
         </TabsContent>
-        <TabsContent value="claims" className="mt-4 text-center text-muted-foreground text-sm py-8">
+        <TabsContent value="claims" className="mt-5 text-center text-muted-foreground text-sm py-8">
           Vendor claims and settlements
         </TabsContent>
       </Tabs>

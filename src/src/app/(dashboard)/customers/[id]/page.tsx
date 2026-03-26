@@ -48,7 +48,7 @@ export default function CustomerDetailPage() {
   if (!customer) return <div className="text-muted-foreground">Customer not found</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title={customer.companyName}
         description={`${customer.accountNumber} · ${customer.type} · ${customer.paymentTerms}`}
         breadcrumbs={[{ label: "Customers", href: "/customers" }, { label: customer.companyName }]}
@@ -56,34 +56,34 @@ export default function CustomerDetailPage() {
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card><CardContent className="pt-4">
-          <p className="text-xs font-mono text-muted-foreground">BALANCE</p>
-          <p className="text-lg font-mono font-semibold">${Number(customer.currentBalance).toLocaleString()}</p>
+        <Card className="card-warm"><CardContent className="pt-4">
+          <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">BALANCE</p>
+          <p className="text-2xl font-light tracking-tight font-[family-name:var(--font-heading)]">${Number(customer.currentBalance).toLocaleString()}</p>
         </CardContent></Card>
-        <Card><CardContent className="pt-4">
-          <p className="text-xs font-mono text-muted-foreground">CREDIT LIMIT</p>
-          <p className="text-lg font-mono font-semibold">${Number(customer.creditLimit).toLocaleString()}</p>
+        <Card className="card-warm"><CardContent className="pt-4">
+          <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">CREDIT LIMIT</p>
+          <p className="text-2xl font-light tracking-tight font-[family-name:var(--font-heading)]">${Number(customer.creditLimit).toLocaleString()}</p>
         </CardContent></Card>
-        <Card><CardContent className="pt-4">
-          <p className="text-xs font-mono text-muted-foreground">ORDERS</p>
-          <p className="text-lg font-mono font-semibold">{customer.orders.length}</p>
+        <Card className="card-warm"><CardContent className="pt-4">
+          <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">ORDERS</p>
+          <p className="text-2xl font-light tracking-tight font-[family-name:var(--font-heading)]">{customer.orders.length}</p>
         </CardContent></Card>
-        <Card><CardContent className="pt-4">
-          <p className="text-xs font-mono text-muted-foreground">CONTACTS</p>
-          <p className="text-lg font-mono font-semibold">{customer.contacts.length}</p>
+        <Card className="card-warm"><CardContent className="pt-4">
+          <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">CONTACTS</p>
+          <p className="text-2xl font-light tracking-tight font-[family-name:var(--font-heading)]">{customer.contacts.length}</p>
         </CardContent></Card>
       </div>
 
       <Tabs defaultValue="profile">
-        <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="contacts">Contacts</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
-          <TabsTrigger value="billing">Billing</TabsTrigger>
-          <TabsTrigger value="communications">Communications</TabsTrigger>
+        <TabsList className="bg-muted/30 border border-border/40 p-1 rounded-xl h-auto">
+          <TabsTrigger value="profile" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Profile</TabsTrigger>
+          <TabsTrigger value="contacts" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Contacts</TabsTrigger>
+          <TabsTrigger value="orders" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Orders</TabsTrigger>
+          <TabsTrigger value="billing" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Billing</TabsTrigger>
+          <TabsTrigger value="communications" className="rounded-lg text-[13px] px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200">Communications</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile" className="mt-4">
+        <TabsContent value="profile" className="mt-5">
           <Card>
             <CardContent className="space-y-2 pt-4 text-sm">
               {customer.dba && <div className="flex justify-between"><span className="text-muted-foreground">DBA</span><span>{customer.dba}</span></div>}
@@ -103,11 +103,11 @@ export default function CustomerDetailPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="contacts" className="mt-4">
+        <TabsContent value="contacts" className="mt-5">
           <ContactsPanel customerId={customerId} contacts={customer.contacts} />
         </TabsContent>
 
-        <TabsContent value="orders" className="mt-4">
+        <TabsContent value="orders" className="mt-5">
           <Card>
             <CardHeader><CardTitle className="text-base">Recent Orders</CardTitle></CardHeader>
             <CardContent>
@@ -128,7 +128,7 @@ export default function CustomerDetailPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="billing" className="mt-4">
+        <TabsContent value="billing" className="mt-5">
           <Card>
             <CardHeader><CardTitle className="text-base">Billing & Collections</CardTitle></CardHeader>
             <CardContent>
@@ -145,7 +145,7 @@ export default function CustomerDetailPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="communications" className="mt-4">
+        <TabsContent value="communications" className="mt-5">
           <Card><CardContent className="py-8 text-center text-sm text-muted-foreground">
             Communication log will be built in later phases
           </CardContent></Card>

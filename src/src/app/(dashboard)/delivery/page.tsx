@@ -44,7 +44,7 @@ export default function DeliveryPage() {
 
   if (!route) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <PageHeader title="Delivery" description="Today's route and stop execution" breadcrumbs={[{ label: "Delivery" }]} />
         <Card><CardContent className="py-12 text-center text-muted-foreground">No route assigned for today</CardContent></Card>
       </div>
@@ -52,28 +52,28 @@ export default function DeliveryPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title={`Route ${route.routeNumber}`}
         description={`${route.truck.number} (${route.truck.type}) · ${route.completedStops}/${route.totalStops} stops`}
         breadcrumbs={[{ label: "Delivery" }]}
-        actions={<StatusBadge status={route.status} />} />
+        actions={<StatusBadge status={route.status} size="lg" />} />
 
       <div className="space-y-2">
         {route.stops.map((stop) => (
           <Card key={stop.id} className={`border-l-4 ${stop.status === "COMPLETED" ? "border-l-success opacity-70" : stop.status === "ARRIVED" ? "border-l-primary" : "border-l-muted-foreground"}`}>
-            <CardContent className="flex items-center justify-between py-3">
+            <CardContent className="flex items-center justify-between py-4">
               <div className="flex items-center gap-3">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-muted text-xs font-mono font-bold">{stop.sequence}</span>
+                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-muted text-sm font-mono font-bold">{stop.sequence}</span>
                 <div>
-                  <p className="text-sm font-medium">{stop.customerName}</p>
-                  <p className="text-xs text-muted-foreground">{stop.address?.["street"] ?? "—"}</p>
-                  {stop.appointmentWindow && <p className="text-[10px] font-mono text-primary">{stop.appointmentWindow}</p>}
+                  <p className="text-base font-medium">{stop.customerName}</p>
+                  <p className="text-sm text-muted-foreground">{stop.address?.["street"] ?? "—"}</p>
+                  {stop.appointmentWindow && <p className="text-xs font-mono text-primary">{stop.appointmentWindow}</p>}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {stop.deliveryProof ? <span className="text-[10px] font-mono text-success">POD</span> : null}
-                {stop.codCollection ? <span className="text-[10px] font-mono text-warning">COD</span> : null}
-                <StatusBadge status={stop.outcome ?? stop.status} size="sm" />
+                {stop.deliveryProof ? <span className="text-xs font-mono text-success">POD</span> : null}
+                {stop.codCollection ? <span className="text-xs font-mono text-warning">COD</span> : null}
+                <StatusBadge status={stop.outcome ?? stop.status} size="default" />
               </div>
             </CardContent>
           </Card>

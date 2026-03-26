@@ -16,7 +16,7 @@ export default function DashboardLayout({
   const [searchOpen, setSearchOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background bg-noise">
       {/* Sidebar - desktop only */}
       <AppSidebar
         collapsed={sidebarCollapsed}
@@ -26,8 +26,8 @@ export default function DashboardLayout({
       {/* Main content area */}
       <div
         className={cn(
-          "flex flex-col min-h-screen transition-all duration-200",
-          sidebarCollapsed ? "md:ml-16" : "md:ml-56",
+          "flex flex-col min-h-screen transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          sidebarCollapsed ? "md:ml-[68px]" : "md:ml-60",
         )}
       >
         <Topbar
@@ -35,8 +35,10 @@ export default function DashboardLayout({
           onSidebarToggle={() => setSidebarCollapsed((prev) => !prev)}
         />
 
-        <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">
-          {children}
+        <main className="flex-1 p-4 md:p-6 lg:p-8 pb-20 md:pb-8">
+          <div className="animate-fade-up">
+            {children}
+          </div>
         </main>
       </div>
 

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { format } from "date-fns";
 
 interface OrderRow {
@@ -55,10 +56,10 @@ export default function OrdersPage() {
   React.useEffect(() => { void fetchOrders(); }, [fetchOrders]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Orders" description="Order lifecycle management"
         breadcrumbs={[{ label: "Orders" }]}
-        actions={<Button className="font-mono uppercase tracking-wider text-xs">+ New Order</Button>} />
+        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />New Order</Button>} />
 
       <DataTable columns={columns} data={data} total={total} page={page}
         totalPages={Math.ceil(total / 20)}

@@ -60,7 +60,7 @@ export default function CollectionsPage() {
   const s = data?.summary;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Collections" description="AR aging, account management, and follow-up tracking"
         breadcrumbs={[{ label: "Collections" }]} />
 

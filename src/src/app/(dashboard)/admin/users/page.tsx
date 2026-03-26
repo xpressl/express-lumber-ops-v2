@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { CreateUserDialog } from "@/components/admin/create-user-dialog";
 
 interface UserRow {
@@ -95,7 +96,7 @@ export default function AdminUsersPage() {
   }, [fetchUsers]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="User Management"
         description="Manage user accounts, roles, and access"
@@ -104,8 +105,8 @@ export default function AdminUsersPage() {
           { label: "Users" },
         ]}
         actions={
-          <Button onClick={() => setShowCreate(true)} className="font-mono uppercase tracking-wider text-xs">
-            + New User
+          <Button onClick={() => setShowCreate(true)} className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4">
+            <Plus size={15} />New User
           </Button>
         }
       />

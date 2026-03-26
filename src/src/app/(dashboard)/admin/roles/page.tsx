@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { CreateRoleDialog } from "@/components/admin/create-role-dialog";
 
 interface RoleRow {
@@ -72,14 +73,14 @@ export default function AdminRolesPage() {
   React.useEffect(() => { void fetchRoles(); }, [fetchRoles]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Role Management"
         description="Manage roles and permission templates"
         breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Roles" }]}
         actions={
-          <Button onClick={() => setShowCreate(true)} className="font-mono uppercase tracking-wider text-xs">
-            + New Role
+          <Button onClick={() => setShowCreate(true)} className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4">
+            <Plus size={15} />New Role
           </Button>
         }
       />

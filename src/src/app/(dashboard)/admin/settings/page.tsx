@@ -34,7 +34,7 @@ export default function BranchSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Branch Settings"
         description="Configure branch-specific operational settings"
@@ -47,8 +47,8 @@ export default function BranchSettingsPage() {
         </CardContent></Card>
       ) : (
         Object.entries(grouped).map(([category, items]) => (
-          <Card key={category}>
-            <CardHeader><CardTitle className="text-base font-mono uppercase">{category}</CardTitle></CardHeader>
+          <Card key={category} className="card-warm">
+            <CardHeader><CardTitle className="text-[13px] font-medium uppercase tracking-[0.1em]">{category}</CardTitle></CardHeader>
             <CardContent>
               {items.map((s) => (
                 <div key={s.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">

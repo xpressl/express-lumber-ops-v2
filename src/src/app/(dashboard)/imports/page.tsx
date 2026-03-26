@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface ImportRow { id: string; type: string; fileName: string; status: string; totalRows: number; createdRows: number; errorRows: number; confidenceScore: number | null; createdAt: string }
 
@@ -33,10 +34,10 @@ export default function ImportsPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Import Bridge" description="Upload, map, review, and approve data imports from ERP"
         breadcrumbs={[{ label: "Imports" }]}
-        actions={<Button className="font-mono uppercase tracking-wider text-xs">+ Upload Import</Button>} />
+        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />Upload Import</Button>} />
       <DataTable columns={columns} data={data} total={data.length} isLoading={isLoading}
         emptyMessage="No imports" rowKey={(r) => r.id}
         onRowClick={(r) => router.push(`/imports/${r.id}`)} />

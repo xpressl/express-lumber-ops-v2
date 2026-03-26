@@ -17,12 +17,12 @@ interface ReceivingRow {
 }
 
 const columns: DataTableColumn<ReceivingRow>[] = [
-  { id: "po", header: "PO", cell: (r) => <span className="font-mono text-xs">{r.purchaseOrderId.slice(0, 8)}</span>, sortable: true },
-  { id: "status", header: "Status", cell: (r) => <StatusBadge status={r.status} size="sm" /> },
-  { id: "lines", header: "Lines", cell: (r) => <span className="font-mono text-xs">{r.totalLinesReceived}/{r.totalLinesExpected}</span>, className: "text-center" },
+  { id: "po", header: "PO", cell: (r) => <span className="font-mono text-base">{r.purchaseOrderId.slice(0, 8)}</span>, sortable: true },
+  { id: "status", header: "Status", cell: (r) => <StatusBadge status={r.status} size="default" /> },
+  { id: "lines", header: "Lines", cell: (r) => <span className="font-mono text-base">{r.totalLinesReceived}/{r.totalLinesExpected}</span>, className: "text-center" },
   { id: "discrepancy", header: "Discrepancy", cell: (r) => r.hasDiscrepancy
-    ? <span className="text-xs text-destructive font-mono">YES</span>
-    : <span className="text-xs text-muted-foreground">No</span> },
+    ? <span className="text-sm text-destructive font-mono">YES</span>
+    : <span className="text-sm text-muted-foreground">No</span> },
 ];
 
 export default function ReceivingPage() {
@@ -40,7 +40,7 @@ export default function ReceivingPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Receiving" description="PO receiving and discrepancy management"
         breadcrumbs={[{ label: "Receiving" }]} />
       <DataTable columns={columns} data={data} total={data.length}
