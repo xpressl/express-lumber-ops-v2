@@ -29,7 +29,7 @@
   {"id": "TASK-028", "title": "Phase 3E: Admin - approvals, audit log, security events, access simulator", "passes": true, "priority": 4},
   {"id": "TASK-029", "title": "Phase 4A: Customer module - service, API, directory, detail, forms", "passes": true, "priority": 4},
   {"id": "TASK-030", "title": "Phase 4B: Product module - service, API, catalogue, detail", "passes": true, "priority": 4},
-  {"id": "TASK-031", "title": "Phase 4C: Order module - service and API routes", "passes": false, "priority": 4},
+  {"id": "TASK-031", "title": "Phase 4C: Order module - service and API routes", "passes": true, "priority": 4},
   {"id": "TASK-032", "title": "Phase 4C: Order module - UI (list, detail, form, items editor, status controls, timeline, pack slip)", "passes": false, "priority": 4},
   {"id": "TASK-033", "title": "Phase 4C: Seed realistic sample data (customers, products, orders)", "passes": false, "priority": 5},
   {"id": "TASK-034", "title": "Phase 5A: Dispatch module - services (dispatch, route, truck) and API routes", "passes": false, "priority": 5},
