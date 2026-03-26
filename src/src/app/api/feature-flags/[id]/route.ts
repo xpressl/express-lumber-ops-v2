@@ -2,6 +2,7 @@ import { apiHandler, jsonResponse } from "@/lib/middleware/api-handler";
 import { validateBody } from "@/lib/middleware/validate";
 import { getFlagById, updateFlag, createAssignment } from "@/lib/services/feature-flag.service";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const updateFlagSchema = z.object({
@@ -28,7 +29,7 @@ export const PUT = apiHandler(async (request, { params, user }) => {
   const flagId = params?.["id"];
   if (!flagId) throw new NotFoundError("FeatureFlag");
   const body = await validateBody(request, updateFlagSchema);
-  const flag = await updateFlag(flagId, body, user.id);
+  const flag = await updateFlag(flagId, body, toActor(user));
   return jsonResponse(flag);
 }, { permission: "admin.manage_feature_flags" });
 
@@ -36,6 +37,6 @@ export const POST = apiHandler(async (request, { params, user }) => {
   const flagId = params?.["id"];
   if (!flagId) throw new NotFoundError("FeatureFlag");
   const body = await validateBody(request, assignmentSchema);
-  const assignment = await createAssignment(flagId, body.level, body.targetId, body.state, user.id);
+  const assignment = await createAssignment(flagId, body.level, body.targetId, body.state, toActor(user));
   return jsonResponse(assignment);
 }, { permission: "admin.manage_feature_flags" });

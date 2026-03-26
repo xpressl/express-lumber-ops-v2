@@ -4,7 +4,7 @@ import { createAuditEvent } from "@/lib/events/audit";
 import { createException } from "@/lib/exceptions/engine";
 
 /** Get cost changes with severity classification */
-export async function getCostChanges(params: { dateFrom?: string; dateTo?: string; locationId?: string }) {
+export async function getCostChanges(params: { dateFrom?: string; dateTo?: string; locationId?: string; scopeFilter?: Record<string, unknown> }) {
   const where: Prisma.ProductCostHistoryWhereInput = {};
   if (params.dateFrom || params.dateTo) {
     where.effectiveAt = {
@@ -61,7 +61,7 @@ export async function recordCostChange(
 }
 
 /** Get quotes at risk from cost changes */
-export async function getQuotesAtRisk() {
+export async function getQuotesAtRisk(_scopeFilter?: Record<string, unknown>) {
   const recentChanges = await prisma.productCostHistory.findMany({
     where: { effectiveAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
     select: { productId: true },

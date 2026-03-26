@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
 import { logSecurityEvent } from "@/lib/events/security";
 import { invalidateFlagCache } from "@/lib/feature-flags/evaluate";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { FlagState, FlagLevel } from "@prisma/client";
 
 export interface CreateFlagInput {
@@ -12,20 +13,20 @@ export interface CreateFlagInput {
   defaultState: FlagState;
 }
 
-export async function createFlag(input: CreateFlagInput, actorId: string) {
+export async function createFlag(input: CreateFlagInput, actor: Actor) {
   const flag = await prisma.featureFlag.create({ data: input });
   await createAuditEvent({
-    actorId, actorName: "System", action: "feature_flag.created",
+    actorId: actor.id, actorName: actor.name, action: "feature_flag.created",
     entityType: "FeatureFlag", entityId: flag.id, entityName: flag.name,
   });
   return flag;
 }
 
-export async function updateFlag(flagId: string, input: Partial<CreateFlagInput>, actorId: string) {
+export async function updateFlag(flagId: string, input: Partial<CreateFlagInput>, actor: Actor) {
   const flag = await prisma.featureFlag.update({ where: { id: flagId }, data: input });
   await invalidateFlagCache();
   await logSecurityEvent({
-    type: "FEATURE_FLAG_CHANGE", actorId,
+    type: "FEATURE_FLAG_CHANGE", actorId: actor.id,
     details: { flagId, flagCode: flag.code, changes: input } as Record<string, unknown>,
     success: true,
   });
@@ -33,27 +34,27 @@ export async function updateFlag(flagId: string, input: Partial<CreateFlagInput>
 }
 
 export async function createAssignment(
-  flagId: string, level: FlagLevel, targetId: string, state: FlagState, actorId: string,
+  flagId: string, level: FlagLevel, targetId: string, state: FlagState, actor: Actor,
 ) {
   const assignment = await prisma.featureFlagAssignment.upsert({
     where: { flagId_level_targetId: { flagId, level, targetId } },
     update: { state },
-    create: { flagId, level, targetId, state, createdBy: actorId },
+    create: { flagId, level, targetId, state, createdBy: actor.id },
   });
   await invalidateFlagCache();
   await logSecurityEvent({
-    type: "FEATURE_FLAG_CHANGE", actorId,
+    type: "FEATURE_FLAG_CHANGE", actorId: actor.id,
     details: { flagId, level, targetId, state } as Record<string, unknown>,
     success: true,
   });
   return assignment;
 }
 
-export async function deleteAssignment(assignmentId: string, actorId: string) {
+export async function deleteAssignment(assignmentId: string, actor: Actor) {
   const assignment = await prisma.featureFlagAssignment.delete({ where: { id: assignmentId } });
   await invalidateFlagCache();
   await logSecurityEvent({
-    type: "FEATURE_FLAG_CHANGE", actorId,
+    type: "FEATURE_FLAG_CHANGE", actorId: actor.id,
     details: { action: "removed", flagId: assignment.flagId } as Record<string, unknown>,
     success: true,
   });

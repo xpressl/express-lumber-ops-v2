@@ -2,6 +2,7 @@ import { apiHandler, jsonResponse, createdResponse } from "@/lib/middleware/api-
 import { validateBody } from "@/lib/middleware/validate";
 import { parsePagination, paginatedResponse } from "@/lib/middleware/pagination";
 import { requestApproval, getPendingForApprover } from "@/lib/approvals/engine";
+import { toActor } from "@/lib/events/audit-helpers";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -44,6 +45,6 @@ export const GET = apiHandler(async (request, { user }) => {
 
 export const POST = apiHandler(async (request, { user }) => {
   const body = await validateBody(request, requestApprovalSchema);
-  const result = await requestApproval({ ...body, requesterId: user.id });
+  const result = await requestApproval({ ...body, requester: toActor(user) });
   return createdResponse(result);
 });

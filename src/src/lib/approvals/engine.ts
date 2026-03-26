@@ -1,11 +1,12 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { ApprovalStatus } from "@prisma/client";
 
 export interface RequestApprovalInput {
   policyId: string;
-  requesterId: string;
+  requester: Actor;
   entityType: string;
   entityId: string;
   oldValue?: Record<string, unknown>;
@@ -26,7 +27,7 @@ export async function requestApproval(input: RequestApprovalInput) {
   const request = await prisma.approvalRequest.create({
     data: {
       policyId: input.policyId,
-      requesterId: input.requesterId,
+      requesterId: input.requester.id,
       entityType: input.entityType,
       entityId: input.entityId,
       status: "PENDING",
@@ -40,8 +41,8 @@ export async function requestApproval(input: RequestApprovalInput) {
   });
 
   await createAuditEvent({
-    actorId: input.requesterId,
-    actorName: "System",
+    actorId: input.requester.id,
+    actorName: input.requester.name,
     action: "approval.requested",
     entityType: input.entityType,
     entityId: input.entityId,
@@ -53,25 +54,25 @@ export async function requestApproval(input: RequestApprovalInput) {
 }
 
 /** Approve a request */
-export async function approveRequest(requestId: string, approverId: string, note?: string) {
-  return resolveRequest(requestId, approverId, "APPROVED", note);
+export async function approveRequest(requestId: string, approver: Actor, note?: string) {
+  return resolveRequest(requestId, approver, "APPROVED", note);
 }
 
 /** Deny a request */
-export async function denyRequest(requestId: string, approverId: string, note?: string) {
-  return resolveRequest(requestId, approverId, "DENIED", note);
+export async function denyRequest(requestId: string, approver: Actor, note?: string) {
+  return resolveRequest(requestId, approver, "DENIED", note);
 }
 
 /** Cancel a request (by requester) */
-export async function cancelRequest(requestId: string, requesterId: string) {
+export async function cancelRequest(requestId: string, requester: Actor) {
   const request = await prisma.approvalRequest.findUnique({ where: { id: requestId } });
   if (!request) throw new Error("Approval request not found");
-  if (request.requesterId !== requesterId) throw new Error("Only the requester can cancel");
+  if (request.requesterId !== requester.id) throw new Error("Only the requester can cancel");
   if (request.status !== "PENDING") throw new Error(`Cannot cancel request in status: ${request.status}`);
 
   return prisma.approvalRequest.update({
     where: { id: requestId },
-    data: { status: "CANCELLED", resolvedAt: new Date(), resolvedBy: requesterId },
+    data: { status: "CANCELLED", resolvedAt: new Date(), resolvedBy: requester.id },
   });
 }
 
@@ -126,7 +127,7 @@ export async function getPendingForApprover(approverRoles: string[], locationId?
 }
 
 /** Internal: resolve a request */
-async function resolveRequest(requestId: string, resolverId: string, status: ApprovalStatus, note?: string) {
+async function resolveRequest(requestId: string, resolver: Actor, status: ApprovalStatus, note?: string) {
   const request = await prisma.approvalRequest.findUnique({
     where: { id: requestId },
     include: { policy: true },
@@ -134,14 +135,25 @@ async function resolveRequest(requestId: string, resolverId: string, status: App
   if (!request) throw new Error("Approval request not found");
   if (request.status !== "PENDING") throw new Error(`Cannot resolve request in status: ${request.status}`);
 
+  // Verify the resolver has one of the required approver roles
+  const resolverRoles = await prisma.userRoleAssignment.findMany({
+    where: { userId: resolver.id, revokedAt: null },
+    include: { role: true },
+  });
+  const resolverRoleNames = resolverRoles.map((ra: { role: { name: string } }) => ra.role.name);
+  const hasApproverRole = request.policy.approverRoles.some((r) => resolverRoleNames.includes(r));
+  if (!hasApproverRole) {
+    throw new Error("Resolver does not have a required approver role for this policy");
+  }
+
   const updated = await prisma.approvalRequest.update({
     where: { id: requestId },
-    data: { status, resolvedAt: new Date(), resolvedBy: resolverId, resolutionNote: note },
+    data: { status, resolvedAt: new Date(), resolvedBy: resolver.id, resolutionNote: note },
   });
 
   await createAuditEvent({
-    actorId: resolverId,
-    actorName: "System",
+    actorId: resolver.id,
+    actorName: resolver.name,
     action: `approval.${status.toLowerCase()}`,
     entityType: request.entityType,
     entityId: request.entityId,

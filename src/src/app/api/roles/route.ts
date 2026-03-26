@@ -1,6 +1,7 @@
 import { apiHandler, jsonResponse, createdResponse } from "@/lib/middleware/api-handler";
 import { validateBody } from "@/lib/middleware/validate";
 import { listRoles, createRole } from "@/lib/services/role.service";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const createRoleSchema = z.object({
@@ -17,6 +18,6 @@ export const GET = apiHandler(async () => {
 
 export const POST = apiHandler(async (request, { user }) => {
   const body = await validateBody(request, createRoleSchema);
-  const role = await createRole(body, user.id);
+  const role = await createRole(body, toActor(user));
   return createdResponse(role);
 }, { permission: "admin.manage_roles" });

@@ -1,6 +1,7 @@
 import { apiHandler, jsonResponse, createdResponse } from "@/lib/middleware/api-handler";
 import { validateBody } from "@/lib/middleware/validate";
 import { listFlags, createFlag } from "@/lib/services/feature-flag.service";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const createFlagSchema = z.object({
@@ -18,6 +19,6 @@ export const GET = apiHandler(async () => {
 
 export const POST = apiHandler(async (request, { user }) => {
   const body = await validateBody(request, createFlagSchema);
-  const flag = await createFlag(body, user.id);
+  const flag = await createFlag(body, toActor(user));
   return createdResponse(flag);
 }, { permission: "admin.manage_feature_flags" });

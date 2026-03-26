@@ -2,6 +2,7 @@ import { apiHandler, jsonResponse, noContentResponse } from "@/lib/middleware/ap
 import { validateBody } from "@/lib/middleware/validate";
 import { getUserById, updateUser, deleteUser } from "@/lib/services/user.service";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const updateUserSchema = z.object({
@@ -26,13 +27,13 @@ export const PUT = apiHandler(async (request, { params, user }) => {
   const userId = params?.["id"];
   if (!userId) throw new NotFoundError("User");
   const body = await validateBody(request, updateUserSchema);
-  const updated = await updateUser(userId, body, user.id);
+  const updated = await updateUser(userId, body, toActor(user));
   return jsonResponse(updated);
 }, { permission: "admin.manage_users" });
 
 export const DELETE = apiHandler(async (_request, { params, user }) => {
   const userId = params?.["id"];
   if (!userId) throw new NotFoundError("User");
-  await deleteUser(userId, user.id);
+  await deleteUser(userId, toActor(user));
   return noContentResponse();
 }, { permission: "admin.manage_users" });

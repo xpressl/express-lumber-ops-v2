@@ -4,11 +4,20 @@ import { createAuditEvent } from "@/lib/events/audit";
 import { createException } from "@/lib/exceptions/engine";
 import { validateTransition, computeReadinessPercent } from "@/lib/state-machines/order";
 import { checkCredit } from "@/lib/services/customer.service";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { CreateOrderInput, AddOrderItemInput } from "@/lib/validators/order";
 import type { OrderStatus } from "@prisma/client";
 
+const ORDER_SORT_FIELDS = ["requestedDate", "orderNumber", "status", "totalAmount", "createdAt", "customerPO"] as const;
+
+/** Validate a sort field against an allowlist, returning the default if invalid */
+function validateSortField(field: string | undefined, allowed: readonly string[], defaultField: string): string {
+  if (!field) return defaultField;
+  return allowed.includes(field) ? field : defaultField;
+}
+
 /** Create a new order */
-export async function createOrder(input: CreateOrderInput, actorId: string) {
+export async function createOrder(input: CreateOrderInput, actor: Actor) {
   // Credit check
   const creditResult = await checkCredit(input.customerId);
 
@@ -32,7 +41,7 @@ export async function createOrder(input: CreateOrderInput, actorId: string) {
       specialInstructions: input.specialInstructions,
       internalNotes: input.internalNotes,
       locationId: input.locationId,
-      createdBy: actorId,
+      createdBy: actor.id,
       holdReasons: !creditResult.allowed ? [creditResult.reason ?? "Credit check failed"] : [],
     },
   });
@@ -42,14 +51,14 @@ export async function createOrder(input: CreateOrderInput, actorId: string) {
     data: {
       orderId: order.id,
       toStatus: order.status,
-      actorId,
-      actorName: "System",
+      actorId: actor.id,
+      actorName: actor.name,
       reason: !creditResult.allowed ? creditResult.reason : undefined,
     },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "order.created",
+    actorId: actor.id, actorName: actor.name, action: "order.created",
     entityType: "Order", entityId: order.id, entityName: order.orderNumber,
     locationId: input.locationId,
   });
@@ -69,7 +78,7 @@ export async function createOrder(input: CreateOrderInput, actorId: string) {
 }
 
 /** Transition order status */
-export async function transitionOrder(orderId: string, toStatus: string, actorId: string, reason?: string) {
+export async function transitionOrder(orderId: string, toStatus: string, actor: Actor, reason?: string) {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Order not found");
 
@@ -89,12 +98,12 @@ export async function transitionOrder(orderId: string, toStatus: string, actorId
   await prisma.orderEvent.create({
     data: {
       orderId, fromStatus: order.status, toStatus,
-      actorId, actorName: "System", reason,
+      actorId: actor.id, actorName: actor.name, reason,
     },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "order.status_changed",
+    actorId: actor.id, actorName: actor.name, action: "order.status_changed",
     entityType: "Order", entityId: orderId, entityName: order.orderNumber,
     locationId: order.locationId,
     before: { status: order.status } as Record<string, unknown>,
@@ -105,7 +114,7 @@ export async function transitionOrder(orderId: string, toStatus: string, actorId
 }
 
 /** Add item to order */
-export async function addOrderItem(orderId: string, input: AddOrderItemInput, actorId: string) {
+export async function addOrderItem(orderId: string, input: AddOrderItemInput, actor: Actor) {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Order not found");
 
@@ -191,7 +200,7 @@ export async function listOrders(params: {
         _count: { select: { items: true } },
       },
       skip, take: limit,
-      orderBy: { [params.sortBy ?? "requestedDate"]: params.sortOrder ?? "desc" },
+      orderBy: { [validateSortField(params.sortBy, ORDER_SORT_FIELDS, "requestedDate")]: params.sortOrder ?? "desc" },
     }),
     prisma.order.count({ where }),
   ]);
@@ -227,16 +236,19 @@ async function recalculateOrderTotals(orderId: string) {
   });
 }
 
-/** Generate sequential order number with collision retry */
+/** Generate sequential order number using serializable transaction to prevent duplicates */
 async function generateOrderNumber(): Promise<string> {
   const today = new Date();
   const prefix = `ORD-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}`;
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const count = await prisma.order.count({ where: { orderNumber: { startsWith: prefix } } });
-    const candidate = `${prefix}-${String(count + 1 + attempt).padStart(4, "0")}`;
-    const exists = await prisma.order.findFirst({ where: { orderNumber: candidate } });
-    if (!exists) return candidate;
-  }
-  // Fallback: use timestamp suffix to guarantee uniqueness
-  return `${prefix}-${Date.now().toString(36).toUpperCase()}`;
+
+  return await prisma.$transaction(async (tx) => {
+    const result = await tx.$queryRaw<[{ max_num: string | null }]>`
+      SELECT MAX(CAST(SPLIT_PART("orderNumber", '-', 3) AS INTEGER)) as max_num
+      FROM "Order"
+      WHERE "orderNumber" LIKE ${prefix + '-%'}
+      FOR UPDATE
+    `;
+    const nextNum = (result[0]?.max_num ? parseInt(result[0].max_num, 10) || 0 : 0) + 1;
+    return `${prefix}-${String(nextNum).padStart(4, "0")}`;
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 }

@@ -1,9 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { CreateProductInput, UpdateProductInput } from "@/lib/validators/product";
 
-export async function createProduct(input: CreateProductInput, actorId: string) {
+export async function createProduct(input: CreateProductInput, actor: Actor) {
   const marginPercent = input.currentSell > 0
     ? ((input.currentSell - input.currentCost) / input.currentSell) * 100
     : 0;
@@ -13,7 +14,7 @@ export async function createProduct(input: CreateProductInput, actorId: string) 
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "product.created",
+    actorId: actor.id, actorName: actor.name, action: "product.created",
     entityType: "Product", entityId: product.id, entityName: `${product.sku} - ${product.name}`,
     locationId: input.locationId,
   });
@@ -21,14 +22,14 @@ export async function createProduct(input: CreateProductInput, actorId: string) 
   return product;
 }
 
-export async function updateProduct(productId: string, input: UpdateProductInput, actorId: string) {
+export async function updateProduct(productId: string, input: UpdateProductInput, actor: Actor) {
   const product = await prisma.product.update({
     where: { id: productId },
     data: input,
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "product.updated",
+    actorId: actor.id, actorName: actor.name, action: "product.updated",
     entityType: "Product", entityId: product.id, entityName: `${product.sku} - ${product.name}`,
   });
 
@@ -45,6 +46,7 @@ export async function listProducts(params: {
   limit?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  scopeFilter?: Record<string, unknown>;
 }) {
   const page = params.page ?? 1;
   const limit = params.limit ?? 20;
@@ -52,6 +54,7 @@ export async function listProducts(params: {
 
   const where: Prisma.ProductWhereInput = {
     deletedAt: null,
+    ...params.scopeFilter,
     ...(params.search ? {
       OR: [
         { sku: { contains: params.search, mode: "insensitive" as const } },
@@ -77,7 +80,7 @@ export async function listProducts(params: {
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function getProductById(productId: string) {
+export async function getProductById(productId: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.product.findUnique({
     where: { id: productId },
     include: {

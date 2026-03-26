@@ -2,6 +2,7 @@ import { apiHandler, jsonResponse } from "@/lib/middleware/api-handler";
 import { capturePod } from "@/lib/services/delivery.service";
 import { capturePodsSchema } from "@/lib/validators/delivery";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 
 export const POST = apiHandler(async (request, { params, user }) => {
   const stopId = params?.["id"];
@@ -14,6 +15,6 @@ export const POST = apiHandler(async (request, { params, user }) => {
     notes: body.notes,
     gpsLat: body.gpsLat,
     gpsLng: body.gpsLng,
-  }, user.id);
+  }, toActor(user));
   return jsonResponse(proof);
 }, { permission: "delivery.capture_pod" });

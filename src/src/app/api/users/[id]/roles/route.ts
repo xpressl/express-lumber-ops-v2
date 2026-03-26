@@ -3,6 +3,7 @@ import { validateBody } from "@/lib/middleware/validate";
 import { assignRole, revokeRole } from "@/lib/services/user.service";
 import { prisma } from "@/lib/prisma";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const assignRoleSchema = z.object({
@@ -29,6 +30,6 @@ export const POST = apiHandler(async (request, { params, user }) => {
   if (!userId) throw new NotFoundError("User");
 
   const body = await validateBody(request, assignRoleSchema);
-  const assignment = await assignRole(userId, body.roleId, body.locationId ?? null, user.id, body.reason);
+  const assignment = await assignRole(userId, body.roleId, body.locationId ?? null, toActor(user), body.reason);
   return createdResponse(assignment);
 }, { permission: "admin.manage_roles" });

@@ -2,6 +2,7 @@ import { apiHandler, jsonResponse, noContentResponse } from "@/lib/middleware/ap
 import { validateBody } from "@/lib/middleware/validate";
 import { getRoleById, updateRole, deleteRole, assignPermission, removePermission } from "@/lib/services/role.service";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const updateRoleSchema = z.object({
@@ -28,7 +29,7 @@ export const PUT = apiHandler(async (request, { params, user }) => {
   const roleId = params?.["id"];
   if (!roleId) throw new NotFoundError("Role");
   const body = await validateBody(request, updateRoleSchema);
-  const role = await updateRole(roleId, body, user.id);
+  const role = await updateRole(roleId, body, toActor(user));
   return jsonResponse(role);
 }, { permission: "admin.manage_roles" });
 
@@ -38,10 +39,10 @@ export const POST = apiHandler(async (request, { params, user }) => {
   const body = await validateBody(request, permissionActionSchema);
 
   if (body.action === "assign") {
-    const rp = await assignPermission(roleId, body.permissionId, body.scopeType ?? "ALL", user.id);
+    const rp = await assignPermission(roleId, body.permissionId, body.scopeType ?? "ALL", toActor(user));
     return jsonResponse(rp);
   } else {
-    await removePermission(roleId, body.permissionId, user.id);
+    await removePermission(roleId, body.permissionId, toActor(user));
     return noContentResponse();
   }
 }, { permission: "admin.manage_roles" });
@@ -49,6 +50,6 @@ export const POST = apiHandler(async (request, { params, user }) => {
 export const DELETE = apiHandler(async (_request, { params, user }) => {
   const roleId = params?.["id"];
   if (!roleId) throw new NotFoundError("Role");
-  await deleteRole(roleId, user.id);
+  await deleteRole(roleId, toActor(user));
   return noContentResponse();
 }, { permission: "admin.manage_roles" });

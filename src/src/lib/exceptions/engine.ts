@@ -21,6 +21,7 @@ export const EXCEPTION_CATEGORIES = {
   APPROVAL_OVERDUE: { severity: "MEDIUM" as const, slaHours: 4, module: "approvals" },
   IMPORT_BLOCKED: { severity: "HIGH" as const, slaHours: 4, module: "imports" },
   CYCLE_COUNT_VARIANCE: { severity: "MEDIUM" as const, slaHours: 8, module: "yard" },
+  ORDER_TRANSITION_FAILURE: { severity: "HIGH" as const, slaHours: 4, module: "delivery" },
 } as const;
 
 export type ExceptionCategory = keyof typeof EXCEPTION_CATEGORIES;
@@ -148,7 +149,7 @@ export async function dismissException(exceptionId: string, userId: string, reas
 }
 
 /** Get exception summary counts for dashboard */
-export async function getExceptionSummary(locationId?: string) {
+export async function getExceptionSummary(locationId?: string, _scopeFilter?: Record<string, unknown>) {
   const where = {
     status: { in: ["OPEN" as const, "ACKNOWLEDGED" as const, "IN_PROGRESS" as const, "ESCALATED" as const] },
     ...(locationId ? { locationId } : {}),

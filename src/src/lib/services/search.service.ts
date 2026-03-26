@@ -9,7 +9,7 @@ export interface SearchResult {
 }
 
 /** Universal search across all major entities */
-export async function search(query: string, limit = 20): Promise<SearchResult[]> {
+export async function search(query: string, _scopeFilter?: Record<string, unknown>, limit = 20): Promise<SearchResult[]> {
   if (!query || query.length < 2) return [];
   const results: SearchResult[] = [];
   const q = query.toLowerCase();

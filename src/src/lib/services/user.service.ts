@@ -4,6 +4,14 @@ import { hash } from "bcryptjs";
 import { createAuditEvent } from "@/lib/events/audit";
 import { logSecurityEvent } from "@/lib/events/security";
 import { invalidatePermissionCache } from "@/lib/permissions/evaluate";
+import type { Actor } from "@/lib/events/audit-helpers";
+
+const USER_SORT_FIELDS = ["createdAt", "email", "firstName", "lastName", "status"] as const;
+
+function validateSortField(field: string | undefined, allowed: readonly string[], defaultField: string): string {
+  if (!field) return defaultField;
+  return allowed.includes(field) ? field : defaultField;
+}
 
 export interface CreateUserInput {
   email: string;
@@ -27,7 +35,7 @@ export interface UpdateUserInput {
 }
 
 /** Create a new user */
-export async function createUser(input: CreateUserInput, actorId: string) {
+export async function createUser(input: CreateUserInput, actor: Actor) {
   const passwordHash = await hash(input.password, 12);
 
   const user = await prisma.user.create({
@@ -38,7 +46,7 @@ export async function createUser(input: CreateUserInput, actorId: string) {
       lastName: input.lastName,
       phone: input.phone,
       status: "ACTIVE",
-      createdBy: actorId,
+      createdBy: actor.id,
       profile: {
         create: {
           title: input.title,
@@ -51,8 +59,8 @@ export async function createUser(input: CreateUserInput, actorId: string) {
   });
 
   await createAuditEvent({
-    actorId,
-    actorName: "System",
+    actorId: actor.id,
+    actorName: actor.name,
     action: "user.created",
     entityType: "User",
     entityId: user.id,
@@ -64,7 +72,7 @@ export async function createUser(input: CreateUserInput, actorId: string) {
 }
 
 /** Update user */
-export async function updateUser(userId: string, input: UpdateUserInput, actorId: string) {
+export async function updateUser(userId: string, input: UpdateUserInput, actor: Actor) {
   const before = await prisma.user.findUnique({ where: { id: userId }, include: { profile: true } });
 
   const user = await prisma.user.update({
@@ -86,29 +94,29 @@ export async function updateUser(userId: string, input: UpdateUserInput, actorId
   });
 
   await createAuditEvent({
-    actorId,
-    actorName: "System",
+    actorId: actor.id,
+    actorName: actor.name,
     action: "user.updated",
     entityType: "User",
     entityId: user.id,
     entityName: `${user.firstName} ${user.lastName}`,
-    before: before as unknown as Record<string, unknown>,
-    after: user as unknown as Record<string, unknown>,
+    before: before ? sanitizeUserForAudit(before) : undefined,
+    after: sanitizeUserForAudit(user),
   });
 
   return user;
 }
 
 /** Soft-delete user */
-export async function deleteUser(userId: string, actorId: string) {
+export async function deleteUser(userId: string, actor: Actor) {
   const user = await prisma.user.update({
     where: { id: userId },
     data: { deletedAt: new Date(), status: "INACTIVE" },
   });
 
   await createAuditEvent({
-    actorId,
-    actorName: "System",
+    actorId: actor.id,
+    actorName: actor.name,
     action: "user.deleted",
     entityType: "User",
     entityId: user.id,
@@ -123,7 +131,7 @@ export async function assignRole(
   userId: string,
   roleId: string,
   locationId: string | null,
-  actorId: string,
+  actor: Actor,
   reason?: string,
 ) {
   const assignment = await prisma.userRoleAssignment.create({
@@ -131,7 +139,7 @@ export async function assignRole(
       userId,
       roleId,
       locationId,
-      assignedBy: actorId,
+      assignedBy: actor.id,
       reason,
     },
     include: { role: true },
@@ -141,15 +149,15 @@ export async function assignRole(
 
   await logSecurityEvent({
     type: "ROLE_CHANGE",
-    actorId,
+    actorId: actor.id,
     targetUserId: userId,
     details: { action: "assigned", roleId, roleName: assignment.role.name, locationId } as unknown as Record<string, unknown>,
     success: true,
   });
 
   await createAuditEvent({
-    actorId,
-    actorName: "System",
+    actorId: actor.id,
+    actorName: actor.name,
     action: "role.assigned",
     entityType: "User",
     entityId: userId,
@@ -160,10 +168,10 @@ export async function assignRole(
 }
 
 /** Revoke a role from a user */
-export async function revokeRole(assignmentId: string, actorId: string) {
+export async function revokeRole(assignmentId: string, actor: Actor) {
   const assignment = await prisma.userRoleAssignment.update({
     where: { id: assignmentId },
-    data: { revokedAt: new Date(), revokedBy: actorId },
+    data: { revokedAt: new Date(), revokedBy: actor.id },
     include: { role: true },
   });
 
@@ -171,7 +179,7 @@ export async function revokeRole(assignmentId: string, actorId: string) {
 
   await logSecurityEvent({
     type: "ROLE_CHANGE",
-    actorId,
+    actorId: actor.id,
     targetUserId: assignment.userId,
     details: { action: "revoked", roleId: assignment.roleId, roleName: assignment.role.name } as unknown as Record<string, unknown>,
     success: true,
@@ -227,12 +235,18 @@ export async function listUsers(params: {
       },
       skip,
       take: limit,
-      orderBy: { [params.sortBy ?? "createdAt"]: params.sortOrder ?? "desc" },
+      orderBy: { [validateSortField(params.sortBy, USER_SORT_FIELDS, "createdAt")]: params.sortOrder ?? "desc" },
     }),
     prisma.user.count({ where }),
   ]);
 
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+}
+
+/** Strip sensitive fields from user object before storing in audit log */
+function sanitizeUserForAudit(user: Record<string, unknown>): Record<string, unknown> {
+  const { passwordHash, ...safe } = user as Record<string, unknown> & { passwordHash?: unknown };
+  return safe;
 }
 
 /** Get user by ID with full details */

@@ -4,11 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { createContactSchema } from "@/lib/validators/customer";
 import { NotFoundError } from "@/lib/middleware/error-handler";
 
-export const GET = apiHandler(async (_request, { params }) => {
+export const GET = apiHandler(async (_request, { params, scopeFilter }) => {
   const customerId = params?.["id"];
   if (!customerId) throw new NotFoundError("Customer");
   const contacts = await prisma.customerContact.findMany({
-    where: { customerId, deletedAt: null },
+    where: { customerId, deletedAt: null, customer: { ...scopeFilter } },
     orderBy: [{ isPrimary: "desc" }, { lastName: "asc" }],
   });
   return jsonResponse(contacts);

@@ -1,10 +1,11 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { CollectionStatus, PromiseStatus } from "@prisma/client";
 
 /** Get aging dashboard data */
-export async function getAgingDashboard(locationId?: string) {
+export async function getAgingDashboard(locationId?: string, _scopeFilter?: Record<string, unknown>) {
   const where: Prisma.CollectionAccountWhereInput = {
     status: { in: ["ACTIVE", "WATCH", "ESCALATED"] },
     ...(locationId ? { locationId } : {}),
@@ -14,6 +15,7 @@ export async function getAgingDashboard(locationId?: string) {
     where,
     include: { customer: { select: { companyName: true, accountNumber: true } } },
     orderBy: { currentBalance: "desc" },
+    take: 200,
   });
 
   const summary = {
@@ -30,7 +32,7 @@ export async function getAgingDashboard(locationId?: string) {
 }
 
 /** List accounts assigned to a collector */
-export async function getMyAccounts(collectorId: string) {
+export async function getMyAccounts(collectorId: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.collectionAccount.findMany({
     where: { collectorId, status: { in: ["ACTIVE", "WATCH", "ESCALATED"] } },
     include: { customer: { select: { companyName: true, accountNumber: true } } },
@@ -39,7 +41,7 @@ export async function getMyAccounts(collectorId: string) {
 }
 
 /** Get account detail */
-export async function getAccountDetail(accountId: string) {
+export async function getAccountDetail(accountId: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.collectionAccount.findUnique({
     where: { id: accountId },
     include: {
@@ -55,7 +57,7 @@ export async function getAccountDetail(accountId: string) {
 /** Log a call */
 export async function logCall(accountId: string, input: {
   type: string; direction: string; outcome: string; notes?: string; followUpDate?: string;
-}, actorId: string) {
+}, actor: Actor) {
   const activity = await prisma.collectionActivity.create({
     data: {
       accountId,
@@ -64,12 +66,12 @@ export async function logCall(accountId: string, input: {
       outcome: input.outcome,
       notes: input.notes,
       followUpDate: input.followUpDate ? new Date(input.followUpDate) : null,
-      createdBy: actorId,
+      createdBy: actor.id,
     },
   });
 
   await createAuditEvent({
-    actorId, actorName: actorId, action: "collections.call_logged",
+    actorId: actor.id, actorName: actor.name, action: "collections.call_logged",
     entityType: "CollectionActivity", entityId: activity.id,
     metadata: { outcome: input.outcome, type: input.type } as Record<string, unknown>,
   });
@@ -88,7 +90,7 @@ export async function logCall(accountId: string, input: {
 /** Create promise to pay */
 export async function createPromise(accountId: string, customerId: string, input: {
   amount: number; promiseDate: string; notes?: string;
-}, actorId: string) {
+}, actor: Actor) {
   const promise = await prisma.promiseToPay.create({
     data: {
       accountId,
@@ -96,12 +98,12 @@ export async function createPromise(accountId: string, customerId: string, input
       amount: input.amount,
       promiseDate: new Date(input.promiseDate),
       notes: input.notes,
-      createdBy: actorId,
+      createdBy: actor.id,
     },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "collections.promise_created",
+    actorId: actor.id, actorName: actor.name, action: "collections.promise_created",
     entityType: "PromiseToPay", entityId: promise.id,
     metadata: { amount: input.amount, date: input.promiseDate } as Record<string, unknown>,
   });
@@ -112,7 +114,7 @@ export async function createPromise(accountId: string, customerId: string, input
 /** Create dispute */
 export async function createDispute(accountId: string, customerId: string, input: {
   invoiceId?: string; amount: number; reason: string; notes?: string;
-}, actorId: string) {
+}, actor: Actor) {
   const dispute = await prisma.dispute.create({
     data: {
       accountId,
@@ -121,12 +123,12 @@ export async function createDispute(accountId: string, customerId: string, input
       amount: input.amount,
       reason: input.reason,
       notes: input.notes,
-      createdBy: actorId,
+      createdBy: actor.id,
     },
   });
 
   await createAuditEvent({
-    actorId, actorName: actorId, action: "collections.dispute_opened",
+    actorId: actor.id, actorName: actor.name, action: "collections.dispute_opened",
     entityType: "Dispute", entityId: dispute.id,
     metadata: { amount: input.amount, reason: input.reason } as Record<string, unknown>,
   });
@@ -135,14 +137,14 @@ export async function createDispute(accountId: string, customerId: string, input
 }
 
 /** Recommend credit hold */
-export async function recommendHold(accountId: string, reason: string, actorId: string) {
+export async function recommendHold(accountId: string, reason: string, actor: Actor) {
   await prisma.collectionAccount.update({
     where: { id: accountId },
     data: { holdRecommended: true, holdReason: reason },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "collections.hold_recommended",
+    actorId: actor.id, actorName: actor.name, action: "collections.hold_recommended",
     entityType: "CollectionAccount", entityId: accountId,
     metadata: { reason } as Record<string, unknown>,
   });

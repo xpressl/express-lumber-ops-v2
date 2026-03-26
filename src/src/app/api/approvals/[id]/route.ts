@@ -3,6 +3,7 @@ import { validateBody } from "@/lib/middleware/validate";
 import { approveRequest, denyRequest, cancelRequest } from "@/lib/approvals/engine";
 import { prisma } from "@/lib/prisma";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const actionSchema = z.object({
@@ -29,13 +30,13 @@ export const POST = apiHandler(async (request, { params, user }) => {
   let result;
   switch (body.action) {
     case "approve":
-      result = await approveRequest(id, user.id, body.note);
+      result = await approveRequest(id, toActor(user), body.note);
       break;
     case "deny":
-      result = await denyRequest(id, user.id, body.note);
+      result = await denyRequest(id, toActor(user), body.note);
       break;
     case "cancel":
-      result = await cancelRequest(id, user.id);
+      result = await cancelRequest(id, toActor(user));
       break;
   }
 

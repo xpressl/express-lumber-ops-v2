@@ -4,11 +4,12 @@ import { getRouteById, releaseRoute, reorderStops } from "@/lib/services/route.s
 import { validateDispatchChecklist } from "@/lib/services/dispatch.service";
 import { reorderStopsSchema } from "@/lib/validators/dispatch";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 
-export const GET = apiHandler(async (_request, { params }) => {
+export const GET = apiHandler(async (_request, { params, scopeFilter }) => {
   const id = params?.["id"];
   if (!id) throw new NotFoundError("Route");
-  const route = await getRouteById(id);
+  const route = await getRouteById(id, scopeFilter);
   if (!route) throw new NotFoundError("Route", id);
   return jsonResponse(route);
 }, { permission: "dispatch.view_board" });
@@ -25,13 +26,13 @@ export const POST = apiHandler(async (request, { params, user }) => {
     if (!checklist.valid) {
       return jsonResponse({ success: false, issues: checklist.issues }, 400);
     }
-    const route = await releaseRoute(id, user.id);
+    const route = await releaseRoute(id, toActor(user));
     return jsonResponse(route);
   }
 
   if (action === "reorder") {
     const body = await validateBody(request, reorderStopsSchema);
-    await reorderStops(id, body.stopIds, user.id);
+    await reorderStops(id, body.stopIds, toActor(user));
     return jsonResponse({ success: true });
   }
 

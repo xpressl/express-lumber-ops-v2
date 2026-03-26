@@ -4,10 +4,11 @@ import { createAuditEvent } from "@/lib/events/audit";
 import { createException } from "@/lib/exceptions/engine";
 import { emitToRoom } from "@/lib/socket";
 import { transitionOrder } from "@/lib/services/order.service";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { StopStatus, StopOutcome } from "@prisma/client";
 
 /** Get driver's current route and stops */
-export async function getMyRoute(driverId: string) {
+export async function getMyRoute(driverId: string, _scopeFilter?: Record<string, unknown>) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -28,7 +29,7 @@ export async function getMyRoute(driverId: string) {
 }
 
 /** Mark stop as arrived */
-export async function arriveAtStop(stopId: string, lat: number, lng: number, actorId: string) {
+export async function arriveAtStop(stopId: string, lat: number, lng: number, actor: Actor) {
   const stop = await prisma.routeStop.update({
     where: { id: stopId },
     data: { status: "ARRIVED", actualArrival: new Date(), geofenceEntered: true, geofenceLat: lat, geofenceLng: lng },
@@ -39,7 +40,7 @@ export async function arriveAtStop(stopId: string, lat: number, lng: number, act
     emitToRoom(`dispatch:${route.locationId}`, "stop:status-changed", { stopId, status: "ARRIVED", routeId: route.id });
 
     await createAuditEvent({
-      actorId, actorName: actorId, action: "delivery.stop_arrived",
+      actorId: actor.id, actorName: actor.name, action: "delivery.stop_arrived",
       entityType: "RouteStop", entityId: stopId,
       locationId: route.locationId,
       metadata: { lat, lng } as Record<string, unknown>,
@@ -50,35 +51,49 @@ export async function arriveAtStop(stopId: string, lat: number, lng: number, act
 }
 
 /** Complete a stop with outcome */
-export async function completeStop(stopId: string, outcome: StopOutcome, actorId: string, notes?: string) {
+export async function completeStop(stopId: string, outcome: StopOutcome, actor: Actor, notes?: string) {
   const stop = await prisma.routeStop.update({
     where: { id: stopId },
     data: { status: "COMPLETED", outcome, completedAt: new Date(), failureReason: notes },
   });
 
-  // Update route progress
-  const route = await prisma.route.findFirst({
-    where: { stops: { some: { id: stopId } } },
-    include: { stops: true },
-  });
+  // Update route progress inside a transaction to prevent race conditions
+  const route = await prisma.$transaction(async (tx) => {
+    const r = await tx.route.findFirst({
+      where: { stops: { some: { id: stopId } } },
+      include: { stops: true },
+    });
+    if (!r) return null;
 
-  if (route) {
-    const completed = route.stops.filter((s) => s.status === "COMPLETED").length;
-    await prisma.route.update({
-      where: { id: route.id },
+    const completed = r.stops.filter((s) => s.status === "COMPLETED").length;
+    await tx.route.update({
+      where: { id: r.id },
       data: {
         completedStops: completed,
-        ...(completed === route.totalStops ? { status: "COMPLETED", completedAt: new Date() } : { status: "IN_PROGRESS" }),
+        ...(completed === r.totalStops ? { status: "COMPLETED", completedAt: new Date() } : { status: "IN_PROGRESS" }),
       },
     });
 
+    return r;
+  });
+
+  if (route) {
     // Update order status via state machine (enforces valid transitions + audit)
     const targetStatus = outcome === "DELIVERED" ? "DELIVERED" : outcome === "REFUSED" ? "REFUSED" : "RESCHEDULED";
     try {
-      await transitionOrder(stop.orderId, targetStatus, actorId, `Stop ${outcome}: ${notes ?? ""}`);
-    } catch {
-      // Log but don't fail the stop completion if transition fails
-      console.error(`[Delivery] Failed to transition order ${stop.orderId} to ${targetStatus}`);
+      await transitionOrder(stop.orderId, targetStatus, actor, `Stop ${outcome}: ${notes ?? ""}`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error(`[Delivery] Failed to transition order ${stop.orderId}: ${message}`);
+      await createException({
+        category: "ORDER_TRANSITION_FAILURE",
+        title: `Failed to transition order after delivery`,
+        description: `Order ${stop.orderId} could not be transitioned to ${targetStatus}: ${message}`,
+        entityType: "Order",
+        entityId: stop.orderId,
+        severity: "HIGH",
+        locationId: route.locationId,
+      });
     }
 
     emitToRoom(`dispatch:${route.locationId}`, "stop:status-changed", {
@@ -97,7 +112,7 @@ export async function completeStop(stopId: string, outcome: StopOutcome, actorId
     }
 
     await createAuditEvent({
-      actorId, actorName: "System", action: "delivery.stop_completed",
+      actorId: actor.id, actorName: actor.name, action: "delivery.stop_completed",
       entityType: "RouteStop", entityId: stopId,
       locationId: route.locationId,
       metadata: { outcome, orderId: stop.orderId } as Record<string, unknown>,
@@ -115,7 +130,7 @@ export async function capturePod(stopId: string, input: {
   notes?: string;
   gpsLat: number;
   gpsLng: number;
-}, actorId: string) {
+}, actor: Actor) {
   const proof = await prisma.deliveryProof.create({
     data: {
       stopId,
@@ -125,12 +140,12 @@ export async function capturePod(stopId: string, input: {
       notes: input.notes,
       gpsLat: input.gpsLat,
       gpsLng: input.gpsLng,
-      capturedBy: actorId,
+      capturedBy: actor.id,
     },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "delivery.pod_captured",
+    actorId: actor.id, actorName: actor.name, action: "delivery.pod_captured",
     entityType: "DeliveryProof", entityId: proof.id,
   });
 
@@ -147,7 +162,7 @@ export async function captureCod(stopId: string, input: {
   checkNumber?: string;
   shortageReason?: string;
   proofPhotoUrl?: string;
-}, actorId: string) {
+}, actor: Actor) {
   const shortageAmount = input.amountDue - input.amountCollected;
 
   const collection = await prisma.cODCollection.create({
@@ -162,7 +177,7 @@ export async function captureCod(stopId: string, input: {
       shortageAmount: shortageAmount > 0 ? shortageAmount : null,
       shortageReason: shortageAmount > 0 ? input.shortageReason : null,
       proofPhotoUrl: input.proofPhotoUrl,
-      collectedBy: actorId,
+      collectedBy: actor.id,
     },
   });
 
@@ -180,7 +195,7 @@ export async function captureCod(stopId: string, input: {
   }
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "delivery.cod_collected",
+    actorId: actor.id, actorName: actor.name, action: "delivery.cod_collected",
     entityType: "CODCollection", entityId: collection.id,
     metadata: { amountDue: input.amountDue, amountCollected: input.amountCollected } as Record<string, unknown>,
   });

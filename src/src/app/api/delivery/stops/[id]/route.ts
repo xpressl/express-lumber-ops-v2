@@ -1,6 +1,7 @@
 import { apiHandler, jsonResponse } from "@/lib/middleware/api-handler";
 import { arriveAtStop, completeStop } from "@/lib/services/delivery.service";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const arriveSchema = z.object({ action: z.literal("arrive"), lat: z.number(), lng: z.number() });
@@ -17,10 +18,10 @@ export const POST = apiHandler(async (request, { params, user }) => {
   const body = schema.parse(await request.json());
 
   if (body.action === "arrive") {
-    const stop = await arriveAtStop(id, body.lat, body.lng, user.id);
+    const stop = await arriveAtStop(id, body.lat, body.lng, toActor(user));
     return jsonResponse(stop);
   }
 
-  const stop = await completeStop(id, body.outcome, user.id, body.notes);
+  const stop = await completeStop(id, body.outcome, toActor(user), body.notes);
   return jsonResponse(stop);
 }, { permission: "delivery.mark_stop_complete" });

@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
 import { createException } from "@/lib/exceptions/engine";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { ReceivingLineStatus } from "@prisma/client";
 
 /** Start receiving against a PO */
-export async function startReceiving(purchaseOrderId: string, locationId: string, actorId: string) {
+export async function startReceiving(purchaseOrderId: string, locationId: string, actor: Actor) {
   const po = await prisma.purchaseOrder.findUnique({
     where: { id: purchaseOrderId },
     include: { lines: true },
@@ -14,7 +15,7 @@ export async function startReceiving(purchaseOrderId: string, locationId: string
   const record = await prisma.receivingRecord.create({
     data: {
       purchaseOrderId,
-      receivedBy: actorId,
+      receivedBy: actor.id,
       status: "IN_PROGRESS",
       totalLinesExpected: po.lines.length,
       locationId,
@@ -36,7 +37,7 @@ export async function startReceiving(purchaseOrderId: string, locationId: string
   }
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "receiving.started",
+    actorId: actor.id, actorName: actor.name, action: "receiving.started",
     entityType: "ReceivingRecord", entityId: record.id,
     locationId, metadata: { poNumber: po.poNumber } as Record<string, unknown>,
   });
@@ -49,7 +50,7 @@ export async function receiveLine(
   receivingRecordId: string,
   lineId: string,
   input: { receivedQty: number; status: ReceivingLineStatus; damageNotes?: string; photos?: string[]; notes?: string },
-  actorId: string,
+  actor: Actor,
 ) {
   const line = await prisma.receivingLine.update({
     where: { id: lineId },
@@ -90,15 +91,15 @@ export async function receiveLine(
 }
 
 /** Complete receiving (mark as pending review) */
-export async function completeReceiving(receivingRecordId: string, actorId: string) {
-  const needsReview = await record_needs_review(receivingRecordId);
+export async function completeReceiving(receivingRecordId: string, actor: Actor) {
+  const needsReview = await recordNeedsReview(receivingRecordId);
   const record = await prisma.receivingRecord.update({
     where: { id: receivingRecordId },
     data: { status: needsReview ? "PENDING_REVIEW" : "APPROVED" },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "receiving.completed",
+    actorId: actor.id, actorName: actor.name, action: "receiving.completed",
     entityType: "ReceivingRecord", entityId: record.id,
     locationId: record.locationId,
   });
@@ -107,18 +108,35 @@ export async function completeReceiving(receivingRecordId: string, actorId: stri
 }
 
 /** List receiving records */
-export async function listReceivingRecords(locationId: string, status?: string) {
-  return prisma.receivingRecord.findMany({
-    where: {
-      locationId,
-      ...(status ? { status: status as "IN_PROGRESS" | "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "AP_HOLD" } : {}),
-    },
-    orderBy: { receivedAt: "desc" },
-  });
+export async function listReceivingRecords(
+  locationId: string,
+  status?: string,
+  page = 1,
+  limit = 50,
+) {
+  const skip = (page - 1) * limit;
+
+  const where = {
+    locationId,
+    deletedAt: null,
+    ...(status ? { status: status as "IN_PROGRESS" | "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "AP_HOLD" } : {}),
+  };
+
+  const [data, total] = await Promise.all([
+    prisma.receivingRecord.findMany({
+      where,
+      orderBy: { receivedAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.receivingRecord.count({ where }),
+  ]);
+
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 /** Get receiving record by ID */
-export async function getReceivingById(recordId: string) {
+export async function getReceivingById(recordId: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.receivingRecord.findUnique({
     where: { id: recordId },
     include: { lines: { orderBy: { lineNumber: "asc" } } },
@@ -136,7 +154,7 @@ export async function getDiscrepancies(locationId: string) {
   });
 }
 
-async function record_needs_review(recordId: string): Promise<boolean> {
+async function recordNeedsReview(recordId: string): Promise<boolean> {
   const lines = await prisma.receivingLine.findMany({ where: { receivingRecordId: recordId } });
   return lines.some((l) => l.status !== "RECEIVED");
 }

@@ -2,8 +2,8 @@ import { apiHandler, jsonResponse } from "@/lib/middleware/api-handler";
 import { getMyRoute, updateDriverLocation } from "@/lib/services/delivery.service";
 import { z } from "zod";
 
-export const GET = apiHandler(async (_request, { user }) => {
-  const route = await getMyRoute(user.id);
+export const GET = apiHandler(async (_request, { user, scopeFilter }) => {
+  const route = await getMyRoute(user.id, scopeFilter);
   return jsonResponse(route);
 }, { permission: "delivery.view_routes" });
 

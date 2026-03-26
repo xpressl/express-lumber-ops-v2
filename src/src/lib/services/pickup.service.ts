@@ -2,10 +2,11 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
 import { emitToRoom } from "@/lib/socket";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { PickupStatus } from "@prisma/client";
 
 /** List pickup tickets for queue */
-export async function listPickups(locationId: string, status?: string) {
+export async function listPickups(locationId: string, status?: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.pickupTicket.findMany({
     where: {
       locationId,
@@ -18,7 +19,7 @@ export async function listPickups(locationId: string, status?: string) {
 }
 
 /** Create pickup ticket from order */
-export async function createPickup(orderId: string, customerId: string, locationId: string, actorId: string) {
+export async function createPickup(orderId: string, customerId: string, locationId: string, actor: Actor) {
   const ticket = await prisma.pickupTicket.create({
     data: { orderId, customerId, locationId, status: "WAITING" },
   });
@@ -31,7 +32,7 @@ export async function createPickup(orderId: string, customerId: string, location
 }
 
 /** Customer arrival check-in */
-export async function customerArrived(ticketId: string, actorId: string) {
+export async function customerArrived(ticketId: string, actor: Actor) {
   const ticket = await prisma.pickupTicket.update({
     where: { id: ticketId },
     data: { status: "CUSTOMER_ARRIVED", arrivedAt: new Date() },
@@ -53,14 +54,14 @@ export async function assignLane(ticketId: string, lane: string, bay?: string) {
 }
 
 /** Complete handoff */
-export async function handoff(ticketId: string, actorId: string) {
+export async function handoff(ticketId: string, actor: Actor) {
   const ticket = await prisma.pickupTicket.update({
     where: { id: ticketId },
-    data: { status: "HANDED_OFF", handedOffAt: new Date(), handedOffBy: actorId },
+    data: { status: "HANDED_OFF", handedOffAt: new Date(), handedOffBy: actor.id },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "pickup.handed_off",
+    actorId: actor.id, actorName: actor.name, action: "pickup.handed_off",
     entityType: "PickupTicket", entityId: ticket.id,
     locationId: ticket.locationId,
   });

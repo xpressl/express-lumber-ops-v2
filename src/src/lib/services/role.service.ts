@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
 import { logSecurityEvent } from "@/lib/events/security";
+import type { Actor } from "@/lib/events/audit-helpers";
 
 export interface CreateRoleInput {
   name: string;
@@ -10,12 +11,12 @@ export interface CreateRoleInput {
 }
 
 /** Create a new role */
-export async function createRole(input: CreateRoleInput, actorId: string) {
+export async function createRole(input: CreateRoleInput, actor: Actor) {
   const role = await prisma.role.create({ data: input });
 
   await createAuditEvent({
-    actorId,
-    actorName: "System",
+    actorId: actor.id,
+    actorName: actor.name,
     action: "role.created",
     entityType: "Role",
     entityId: role.id,
@@ -26,15 +27,15 @@ export async function createRole(input: CreateRoleInput, actorId: string) {
 }
 
 /** Update a role */
-export async function updateRole(roleId: string, input: Partial<CreateRoleInput>, actorId: string) {
+export async function updateRole(roleId: string, input: Partial<CreateRoleInput>, actor: Actor) {
   const role = await prisma.role.update({
     where: { id: roleId },
     data: input,
   });
 
   await createAuditEvent({
-    actorId,
-    actorName: "System",
+    actorId: actor.id,
+    actorName: actor.name,
     action: "role.updated",
     entityType: "Role",
     entityId: role.id,
@@ -45,7 +46,7 @@ export async function updateRole(roleId: string, input: Partial<CreateRoleInput>
 }
 
 /** Delete a non-system role */
-export async function deleteRole(roleId: string, actorId: string) {
+export async function deleteRole(roleId: string, actor: Actor) {
   const role = await prisma.role.findUnique({ where: { id: roleId } });
   if (!role) throw new Error("Role not found");
   if (role.isSystem) throw new Error("Cannot delete system roles");
@@ -53,8 +54,8 @@ export async function deleteRole(roleId: string, actorId: string) {
   await prisma.role.delete({ where: { id: roleId } });
 
   await createAuditEvent({
-    actorId,
-    actorName: "System",
+    actorId: actor.id,
+    actorName: actor.name,
     action: "role.deleted",
     entityType: "Role",
     entityId: role.id,
@@ -67,7 +68,7 @@ export async function assignPermission(
   roleId: string,
   permissionId: string,
   scopeType: string,
-  actorId: string,
+  actor: Actor,
 ) {
   const rp = await prisma.rolePermission.upsert({
     where: { roleId_permissionId: { roleId, permissionId } },
@@ -82,7 +83,7 @@ export async function assignPermission(
 
   await logSecurityEvent({
     type: "PERMISSION_CHANGE",
-    actorId,
+    actorId: actor.id,
     details: { roleId, roleName: rp.role.name, permissionCode: rp.permission.code, scopeType } as Record<string, unknown>,
     success: true,
   });
@@ -91,7 +92,7 @@ export async function assignPermission(
 }
 
 /** Remove a permission from a role */
-export async function removePermission(roleId: string, permissionId: string, actorId: string) {
+export async function removePermission(roleId: string, permissionId: string, actor: Actor) {
   const rp = await prisma.rolePermission.delete({
     where: { roleId_permissionId: { roleId, permissionId } },
     include: { permission: true, role: true },
@@ -99,7 +100,7 @@ export async function removePermission(roleId: string, permissionId: string, act
 
   await logSecurityEvent({
     type: "PERMISSION_CHANGE",
-    actorId,
+    actorId: actor.id,
     details: { roleId, roleName: rp.role.name, permissionCode: rp.permission.code, action: "removed" } as Record<string, unknown>,
     success: true,
   });

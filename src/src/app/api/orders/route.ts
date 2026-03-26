@@ -3,6 +3,7 @@ import { validateBody } from "@/lib/middleware/validate";
 import { parsePagination, paginatedResponse } from "@/lib/middleware/pagination";
 import { listOrders, createOrder } from "@/lib/services/order.service";
 import { createOrderSchema } from "@/lib/validators/order";
+import { toActor } from "@/lib/events/audit-helpers";
 
 export const GET = apiHandler(async (request, { scopeFilter }) => {
   const url = new URL(request.url);
@@ -26,6 +27,6 @@ export const GET = apiHandler(async (request, { scopeFilter }) => {
 
 export const POST = apiHandler(async (request, { user }) => {
   const body = await validateBody(request, createOrderSchema);
-  const order = await createOrder(body, user.id);
+  const order = await createOrder(body, toActor(user));
   return createdResponse(order);
 }, { permission: "orders.create" });

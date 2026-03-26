@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
 import { emitToRoom } from "@/lib/socket";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { YardTaskStatus, YardTaskType } from "@prisma/client";
 
 /** List yard tasks with filters */
@@ -10,18 +11,33 @@ export async function listTasks(params: {
   assignedTo?: string;
   status?: string;
   type?: string;
+  page?: number;
+  limit?: number;
 }) {
-  return prisma.yardTask.findMany({
-    where: {
-      locationId: params.locationId,
-      ...(params.assignedTo ? { assignedTo: params.assignedTo } : {}),
-      ...(params.status ? { status: params.status as YardTaskStatus } : {
-        status: { in: ["PENDING", "ASSIGNED", "IN_PROGRESS"] },
-      }),
-      ...(params.type ? { type: params.type as YardTaskType } : {}),
-    },
-    orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
-  });
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 50;
+  const skip = (page - 1) * limit;
+
+  const where: Prisma.YardTaskWhereInput = {
+    locationId: params.locationId,
+    ...(params.assignedTo ? { assignedTo: params.assignedTo } : {}),
+    ...(params.status ? { status: params.status as YardTaskStatus } : {
+      status: { in: ["PENDING", "ASSIGNED", "IN_PROGRESS"] },
+    }),
+    ...(params.type ? { type: params.type as YardTaskType } : {}),
+  };
+
+  const [data, total] = await Promise.all([
+    prisma.yardTask.findMany({
+      where,
+      orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
+      skip,
+      take: limit,
+    }),
+    prisma.yardTask.count({ where }),
+  ]);
+
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 /** Create a yard task */
@@ -33,7 +49,7 @@ export async function createTask(input: {
   bay?: string;
   notes?: string;
   locationId: string;
-}, actorId: string) {
+}, actor: Actor) {
   const task = await prisma.yardTask.create({ data: input });
 
   emitToRoom(`yard:${input.locationId}`, "task:assigned", {
@@ -41,7 +57,7 @@ export async function createTask(input: {
   });
 
   await createAuditEvent({
-    actorId, actorName: actorId, action: "yard.task_created",
+    actorId: actor.id, actorName: actor.name, action: "yard.task_created",
     entityType: "YardTask", entityId: task.id,
     locationId: input.locationId,
     metadata: { type: input.type, assignedTo: input.assignedTo } as Record<string, unknown>,
@@ -54,7 +70,7 @@ export async function createTask(input: {
 export async function updateTaskStatus(
   taskId: string,
   status: YardTaskStatus,
-  actorId: string,
+  actor: Actor,
   notes?: string,
 ) {
   const task = await prisma.yardTask.update({
@@ -62,17 +78,17 @@ export async function updateTaskStatus(
     data: {
       status,
       ...(status === "IN_PROGRESS" ? { startedAt: new Date() } : {}),
-      ...(status === "COMPLETED" ? { completedAt: new Date(), completedBy: actorId } : {}),
+      ...(status === "COMPLETED" ? { completedAt: new Date(), completedBy: actor.id } : {}),
       ...(notes ? { notes } : {}),
     },
   });
 
-  emitToRoom(`yard:${task.locationId}`, "task:completed", {
-    taskId: task.id, locationId: task.locationId,
+  emitToRoom(`yard:${task.locationId}`, "task:status_changed", {
+    taskId: task.id, status, locationId: task.locationId,
   });
 
   await createAuditEvent({
-    actorId, actorName: "System",
+    actorId: actor.id, actorName: actor.name,
     action: `yard.task_${status.toLowerCase()}`,
     entityType: "YardTask", entityId: task.id,
     locationId: task.locationId,
@@ -82,7 +98,7 @@ export async function updateTaskStatus(
 }
 
 /** Assign task to worker */
-export async function assignTask(taskId: string, workerId: string, actorId: string) {
+export async function assignTask(taskId: string, workerId: string, actor: Actor) {
   const task = await prisma.yardTask.update({
     where: { id: taskId },
     data: { assignedTo: workerId, status: "ASSIGNED" },
@@ -93,7 +109,7 @@ export async function assignTask(taskId: string, workerId: string, actorId: stri
   });
 
   await createAuditEvent({
-    actorId, actorName: actorId, action: "yard.task_assigned",
+    actorId: actor.id, actorName: actor.name, action: "yard.task_assigned",
     entityType: "YardTask", entityId: task.id,
     locationId: task.locationId,
     metadata: { assignedTo: workerId } as Record<string, unknown>,
@@ -133,7 +149,7 @@ export async function logDamage(input: {
   notes: string;
   photos?: string[];
   locationId: string;
-}, actorId: string) {
+}, actor: Actor) {
   const task = await prisma.yardTask.create({
     data: {
       type: "DAMAGE_INSPECTION",
@@ -143,12 +159,12 @@ export async function logDamage(input: {
       locationId: input.locationId,
       status: "COMPLETED",
       completedAt: new Date(),
-      completedBy: actorId,
+      completedBy: actor.id,
     },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "yard.damage_logged",
+    actorId: actor.id, actorName: actor.name, action: "yard.damage_logged",
     entityType: "YardTask", entityId: task.id,
     locationId: input.locationId,
     metadata: { notes: input.notes } as Record<string, unknown>,

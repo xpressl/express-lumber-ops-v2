@@ -3,8 +3,9 @@ import { validateBody } from "@/lib/middleware/validate";
 import { parsePagination, paginatedResponse } from "@/lib/middleware/pagination";
 import { listCustomers, createCustomer } from "@/lib/services/customer.service";
 import { createCustomerSchema } from "@/lib/validators/customer";
+import { toActor } from "@/lib/events/audit-helpers";
 
-export const GET = apiHandler(async (request) => {
+export const GET = apiHandler(async (request, { scopeFilter }) => {
   const url = new URL(request.url);
   const pagination = parsePagination(url);
 
@@ -18,6 +19,7 @@ export const GET = apiHandler(async (request) => {
     limit: pagination.limit,
     sortBy: url.searchParams.get("sortBy") ?? undefined,
     sortOrder: (url.searchParams.get("sortOrder") as "asc" | "desc") ?? undefined,
+    scopeFilter,
   });
 
   return jsonResponse(paginatedResponse(result.data, result.total, pagination));
@@ -25,6 +27,6 @@ export const GET = apiHandler(async (request) => {
 
 export const POST = apiHandler(async (request, { user }) => {
   const body = await validateBody(request, createCustomerSchema);
-  const customer = await createCustomer(body, user.id);
+  const customer = await createCustomer(body, toActor(user));
   return createdResponse(customer);
 }, { permission: "customers.create" });

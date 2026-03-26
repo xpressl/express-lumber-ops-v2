@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { emitToRoom } from "@/lib/socket";
 import { createAuditEvent } from "@/lib/events/audit";
 import { createException } from "@/lib/exceptions/engine";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { Prisma } from "@prisma/client";
 
 /** Get dispatch board data - orders grouped for dispatch planning */
@@ -9,9 +10,11 @@ export async function getDispatchBoard(params: {
   date?: string;
   status?: string;
   locationId?: string;
+  scopeFilter?: Record<string, unknown>;
 }) {
   const where: Prisma.OrderWhereInput = {
     deletedAt: null,
+    ...params.scopeFilter,
     type: { in: ["DELIVERY", "TRANSFER"] },
     ...(params.status ? { status: params.status as "APPROVED" | "READY" | "LOADED" | "DISPATCHED" } : {
       status: { in: ["APPROVED", "READY", "LOADING", "LOADED", "DISPATCHED"] },
@@ -27,6 +30,7 @@ export async function getDispatchBoard(params: {
       _count: { select: { items: true } },
     },
     orderBy: [{ priorityScore: "desc" }, { requestedDate: "asc" }],
+    take: 200,
   });
 }
 
@@ -34,7 +38,7 @@ export async function getDispatchBoard(params: {
 export async function assignOrdersToTruck(
   truckId: string,
   orderIds: string[],
-  actorId: string,
+  actor: Actor,
   locationId: string,
 ) {
   for (const orderId of orderIds) {
@@ -45,7 +49,7 @@ export async function assignOrdersToTruck(
   }
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "dispatch.truck_assigned",
+    actorId: actor.id, actorName: actor.name, action: "dispatch.truck_assigned",
     entityType: "Truck", entityId: truckId,
     locationId,
     metadata: { orderIds, orderCount: orderIds.length } as Record<string, unknown>,
@@ -95,7 +99,7 @@ export async function validateDispatchChecklist(routeId: string): Promise<{
 }
 
 /** Get carryover queue - orders past their requested date that haven't been dispatched */
-export async function getCarryoverQueue(locationId: string) {
+export async function getCarryoverQueue(locationId: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.order.findMany({
     where: {
       locationId,

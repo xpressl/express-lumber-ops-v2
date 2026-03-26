@@ -1,6 +1,7 @@
 import { apiHandler, jsonResponse } from "@/lib/middleware/api-handler";
 import { customerArrived, assignLane, handoff } from "@/lib/services/pickup.service";
 import { NotFoundError } from "@/lib/middleware/error-handler";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const actionSchema = z.object({
@@ -16,11 +17,11 @@ export const POST = apiHandler(async (request, { params, user }) => {
 
   switch (body.action) {
     case "arrived":
-      return jsonResponse(await customerArrived(id, user.id));
+      return jsonResponse(await customerArrived(id, toActor(user)));
     case "assign_lane":
       return jsonResponse(await assignLane(id, body.lane ?? "", body.bay));
     case "handoff":
-      return jsonResponse(await handoff(id, user.id));
+      return jsonResponse(await handoff(id, toActor(user)));
     default:
       return jsonResponse({ error: "Unknown action" }, 400);
   }

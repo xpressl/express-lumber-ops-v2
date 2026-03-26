@@ -15,7 +15,7 @@ export interface TruckCapacity {
 }
 
 /** List available trucks for a location and date */
-export async function getAvailableTrucks(locationId: string, date?: Date) {
+export async function getAvailableTrucks(locationId: string, date?: Date, _scopeFilter?: Record<string, unknown>) {
   return prisma.truck.findMany({
     where: {
       locationId,
@@ -68,7 +68,7 @@ export async function calculateCapacity(truckId: string, routeId: string): Promi
 }
 
 /** List trucks with current status */
-export async function listTrucks(locationId?: string) {
+export async function listTrucks(locationId?: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.truck.findMany({
     where: {
       deletedAt: null,

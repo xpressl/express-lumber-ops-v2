@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { OrderStatus } from "@prisma/client";
 
 export const createOrderSchema = z.object({
   type: z.enum(["DELIVERY", "PICKUP", "WILL_CALL", "TRANSFER", "RETURN_PICKUP", "VENDOR_DROP_SHIP"]),
@@ -39,12 +40,7 @@ export const addOrderItemSchema = z.object({
 });
 
 export const transitionOrderSchema = z.object({
-  toStatus: z.enum([
-    "DRAFT", "IMPORTED", "NEEDS_REVIEW", "APPROVED", "ON_CREDIT_HOLD",
-    "WAITING_INVENTORY", "PARTIALLY_READY", "READY", "LOADING", "LOADED",
-    "DISPATCHED", "OUT_FOR_DELIVERY", "DELIVERED", "PICKUP_READY", "PICKED_UP",
-    "REFUSED", "RESCHEDULED", "CANCELLED", "CLOSED",
-  ]),
+  toStatus: z.nativeEnum(OrderStatus),
   reason: z.string().max(500).optional(),
 });
 

@@ -2,6 +2,8 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
 import { emitToRoom } from "@/lib/socket";
+import { transitionOrder } from "@/lib/services/order.service";
+import type { Actor } from "@/lib/events/audit-helpers";
 
 export interface CreateRouteInput {
   date: string;
@@ -13,7 +15,7 @@ export interface CreateRouteInput {
 }
 
 /** Create a new route with stops */
-export async function createRoute(input: CreateRouteInput, actorId: string) {
+export async function createRoute(input: CreateRouteInput, actor: Actor) {
   const routeNumber = await generateRouteNumber(input.date);
 
   const route = await prisma.route.create({
@@ -22,7 +24,7 @@ export async function createRoute(input: CreateRouteInput, actorId: string) {
       date: new Date(input.date),
       truckId: input.truckId,
       driverId: input.driverId,
-      dispatcherId: actorId,
+      dispatcherId: actor.id,
       status: "PLANNING",
       totalStops: input.orderIds.length,
       routeNotes: input.routeNotes,
@@ -30,14 +32,17 @@ export async function createRoute(input: CreateRouteInput, actorId: string) {
     },
   });
 
-  // Create stops from orders
-  for (let i = 0; i < input.orderIds.length; i++) {
-    const orderId = input.orderIds[i]!;
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
-      include: { customer: { select: { companyName: true } } },
-    });
-    if (!order) continue;
+  // Batch-fetch all orders for stops
+  const orders = await prisma.order.findMany({
+    where: { id: { in: input.orderIds } },
+    include: { customer: { select: { companyName: true } } },
+  });
+  const orderMap = new Map(orders.map((o) => [o.id, o]));
+
+  // Create stops and link orders in parallel batches
+  await Promise.all(input.orderIds.map(async (orderId, i) => {
+    const order = orderMap.get(orderId);
+    if (!order) return;
 
     await prisma.routeStop.create({
       data: {
@@ -53,18 +58,13 @@ export async function createRoute(input: CreateRouteInput, actorId: string) {
       },
     });
 
-    // Link order to route
     await prisma.order.update({
       where: { id: orderId },
       data: { routeId: route.id, truckId: input.truckId, stopSequence: i + 1 },
     });
-  }
+  }));
 
-  // Calculate totals
-  const orders = await prisma.order.findMany({
-    where: { id: { in: input.orderIds } },
-    select: { totalWeight: true, totalPieces: true },
-  });
+  // Calculate totals from already-fetched orders
   const totalWeight = orders.reduce((sum, o) => sum + (Number(o.totalWeight) || 0), 0);
   const totalPieces = orders.reduce((sum, o) => sum + (o.totalPieces || 0), 0);
 
@@ -74,7 +74,7 @@ export async function createRoute(input: CreateRouteInput, actorId: string) {
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "dispatch.route_created",
+    actorId: actor.id, actorName: actor.name, action: "dispatch.route_created",
     entityType: "Route", entityId: route.id, entityName: routeNumber,
     locationId: input.locationId,
     metadata: { truckId: input.truckId, orderCount: input.orderIds.length, totalWeight } as Record<string, unknown>,
@@ -88,13 +88,10 @@ export async function createRoute(input: CreateRouteInput, actorId: string) {
 }
 
 /** Reorder stops on a route */
-export async function reorderStops(routeId: string, stopIds: string[], actorId: string) {
-  for (let i = 0; i < stopIds.length; i++) {
-    await prisma.routeStop.update({
-      where: { id: stopIds[i] },
-      data: { sequence: i + 1 },
-    });
-  }
+export async function reorderStops(routeId: string, stopIds: string[], actor: Actor) {
+  await prisma.$transaction(
+    stopIds.map((id, i) => prisma.routeStop.update({ where: { id }, data: { sequence: i + 1 } })),
+  );
 
   const route = await prisma.route.findUnique({ where: { id: routeId } });
   if (route) {
@@ -102,25 +99,22 @@ export async function reorderStops(routeId: string, stopIds: string[], actorId: 
   }
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "dispatch.stops_reordered",
+    actorId: actor.id, actorName: actor.name, action: "dispatch.stops_reordered",
     entityType: "Route", entityId: routeId,
   });
 }
 
 /** Release a route for dispatch */
-export async function releaseRoute(routeId: string, actorId: string) {
+export async function releaseRoute(routeId: string, actor: Actor) {
   const route = await prisma.route.update({
     where: { id: routeId },
     data: { status: "DISPATCHED", departedAt: new Date() },
   });
 
-  // Update all stops' orders to DISPATCHED
+  // Transition all stops' orders to DISPATCHED via state machine
   const stops = await prisma.routeStop.findMany({ where: { routeId } });
   for (const stop of stops) {
-    await prisma.order.update({
-      where: { id: stop.orderId },
-      data: { status: "DISPATCHED", dispatchedAt: new Date() },
-    });
+    await transitionOrder(stop.orderId, "DISPATCHED", actor, "Route released for dispatch");
   }
 
   emitToRoom(`dispatch:${route.locationId}`, "route:updated", {
@@ -128,7 +122,7 @@ export async function releaseRoute(routeId: string, actorId: string) {
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "dispatch.route_released",
+    actorId: actor.id, actorName: actor.name, action: "dispatch.route_released",
     entityType: "Route", entityId: routeId, entityName: route.routeNumber,
     locationId: route.locationId,
   });
@@ -143,7 +137,13 @@ export async function listRoutes(params: {
   locationId?: string;
   truckId?: string;
   driverId?: string;
+  page?: number;
+  limit?: number;
 }) {
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 50;
+  const skip = (page - 1) * limit;
+
   const where: Prisma.RouteWhereInput = {
     ...(params.date ? { date: new Date(params.date) } : {}),
     ...(params.status ? { status: params.status as "PLANNING" | "READY" | "DISPATCHED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" } : {}),
@@ -152,18 +152,25 @@ export async function listRoutes(params: {
     ...(params.driverId ? { driverId: params.driverId } : {}),
   };
 
-  return prisma.route.findMany({
-    where,
-    include: {
-      truck: { select: { number: true, type: true } },
-      stops: { orderBy: { sequence: "asc" }, select: { id: true, sequence: true, orderId: true, customerName: true, status: true, address: true } },
-    },
-    orderBy: { routeNumber: "asc" },
-  });
+  const [data, total] = await Promise.all([
+    prisma.route.findMany({
+      where,
+      include: {
+        truck: { select: { number: true, type: true } },
+        stops: { orderBy: { sequence: "asc" }, select: { id: true, sequence: true, orderId: true, customerName: true, status: true, address: true } },
+      },
+      orderBy: { routeNumber: "asc" },
+      skip,
+      take: limit,
+    }),
+    prisma.route.count({ where }),
+  ]);
+
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 /** Get route by ID */
-export async function getRouteById(routeId: string) {
+export async function getRouteById(routeId: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.route.findUnique({
     where: { id: routeId },
     include: {
@@ -179,6 +186,15 @@ export async function getRouteById(routeId: string) {
 async function generateRouteNumber(date: string): Promise<string> {
   const d = new Date(date);
   const prefix = `RT-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
-  const count = await prisma.route.count({ where: { routeNumber: { startsWith: prefix } } });
-  return `${prefix}-${String(count + 1).padStart(2, "0")}`;
+
+  return await prisma.$transaction(async (tx) => {
+    const result = await tx.$queryRaw<[{ max_num: string | null }]>`
+      SELECT MAX(CAST(SPLIT_PART("routeNumber", '-', 3) AS INTEGER)) as max_num
+      FROM "Route"
+      WHERE "routeNumber" LIKE ${prefix + '-%'}
+      FOR UPDATE
+    `;
+    const nextNum = (result[0]?.max_num ? parseInt(result[0].max_num, 10) || 0 : 0) + 1;
+    return `${prefix}-${String(nextNum).padStart(2, "0")}`;
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 }

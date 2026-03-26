@@ -1,10 +1,18 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
+import type { Actor } from "@/lib/events/audit-helpers";
 import type { CreateCustomerInput, UpdateCustomerInput } from "@/lib/validators/customer";
 
+const CUSTOMER_SORT_FIELDS = ["companyName", "accountNumber", "status", "createdAt", "currentBalance"] as const;
+
+function validateSortField(field: string | undefined, allowed: readonly string[], defaultField: string): string {
+  if (!field) return defaultField;
+  return allowed.includes(field) ? field : defaultField;
+}
+
 /** Create customer */
-export async function createCustomer(input: CreateCustomerInput, actorId: string) {
+export async function createCustomer(input: CreateCustomerInput, actor: Actor) {
   const customer = await prisma.customer.create({
     data: {
       accountNumber: input.accountNumber,
@@ -21,12 +29,12 @@ export async function createCustomer(input: CreateCustomerInput, actorId: string
       defaultDeliveryInstructions: input.defaultDeliveryInstructions,
       notes: input.notes,
       locationId: input.locationId,
-      createdBy: actorId,
+      createdBy: actor.id,
     },
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "customer.created",
+    actorId: actor.id, actorName: actor.name, action: "customer.created",
     entityType: "Customer", entityId: customer.id, entityName: customer.companyName,
     locationId: input.locationId,
   });
@@ -35,7 +43,7 @@ export async function createCustomer(input: CreateCustomerInput, actorId: string
 }
 
 /** Update customer */
-export async function updateCustomer(customerId: string, input: UpdateCustomerInput, actorId: string) {
+export async function updateCustomer(customerId: string, input: UpdateCustomerInput, actor: Actor) {
   const customer = await prisma.customer.update({
     where: { id: customerId },
     data: {
@@ -46,7 +54,7 @@ export async function updateCustomer(customerId: string, input: UpdateCustomerIn
   });
 
   await createAuditEvent({
-    actorId, actorName: "System", action: "customer.updated",
+    actorId: actor.id, actorName: actor.name, action: "customer.updated",
     entityType: "Customer", entityId: customer.id, entityName: customer.companyName,
   });
 
@@ -54,13 +62,13 @@ export async function updateCustomer(customerId: string, input: UpdateCustomerIn
 }
 
 /** Soft-delete customer */
-export async function deleteCustomer(customerId: string, actorId: string) {
+export async function deleteCustomer(customerId: string, actor: Actor) {
   const customer = await prisma.customer.update({
     where: { id: customerId },
     data: { deletedAt: new Date(), status: "CLOSED" },
   });
   await createAuditEvent({
-    actorId, actorName: "System", action: "customer.deleted",
+    actorId: actor.id, actorName: actor.name, action: "customer.deleted",
     entityType: "Customer", entityId: customer.id, entityName: customer.companyName,
   });
   return customer;
@@ -77,6 +85,7 @@ export async function listCustomers(params: {
   limit?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  scopeFilter?: Record<string, unknown>;
 }) {
   const page = params.page ?? 1;
   const limit = params.limit ?? 20;
@@ -84,6 +93,7 @@ export async function listCustomers(params: {
 
   const where: Prisma.CustomerWhereInput = {
     deletedAt: null,
+    ...params.scopeFilter,
     ...(params.search ? {
       OR: [
         { companyName: { contains: params.search, mode: "insensitive" as const } },
@@ -101,7 +111,7 @@ export async function listCustomers(params: {
     prisma.customer.findMany({
       where, include: { tags: true, _count: { select: { contacts: true, orders: true } } },
       skip, take: limit,
-      orderBy: { [params.sortBy ?? "companyName"]: params.sortOrder ?? "asc" },
+      orderBy: { [validateSortField(params.sortBy, CUSTOMER_SORT_FIELDS, "companyName")]: params.sortOrder ?? "asc" },
     }),
     prisma.customer.count({ where }),
   ]);
@@ -110,7 +120,7 @@ export async function listCustomers(params: {
 }
 
 /** Get customer by ID with full 360 data */
-export async function getCustomerById(customerId: string) {
+export async function getCustomerById(customerId: string, _scopeFilter?: Record<string, unknown>) {
   return prisma.customer.findUnique({
     where: { id: customerId },
     include: {

@@ -3,6 +3,7 @@ import { apiHandler, jsonResponse, createdResponse } from "@/lib/middleware/api-
 import { validateBody } from "@/lib/middleware/validate";
 import { parsePagination, paginatedResponse } from "@/lib/middleware/pagination";
 import { listUsers, createUser } from "@/lib/services/user.service";
+import { toActor } from "@/lib/events/audit-helpers";
 import { z } from "zod";
 
 const createUserSchema = z.object({
@@ -36,6 +37,6 @@ export const GET = apiHandler(async (request) => {
 
 export const POST = apiHandler(async (request, { user }) => {
   const body = await validateBody(request, createUserSchema);
-  const newUser = await createUser(body, user.id);
+  const newUser = await createUser(body, toActor(user));
   return createdResponse(newUser);
 }, { permission: "admin.manage_users" });
