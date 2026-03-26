@@ -34,7 +34,7 @@
   {"id": "TASK-033", "title": "Phase 4C: Seed realistic sample data (customers, products, orders)", "passes": true, "priority": 5},
   {"id": "TASK-034", "title": "Phase 5A: Dispatch module - services (dispatch, route, truck) and API routes", "passes": true, "priority": 5},
   {"id": "TASK-035", "title": "Phase 5A: Dispatch module - UI (order board, truck planner, route map, checklist, carryover)", "passes": true, "priority": 5},
-  {"id": "TASK-036", "title": "Phase 5B: Pickup module - service, API, queue page, pickup card, arrival check-in", "passes": false, "priority": 5},
+  {"id": "TASK-036", "title": "Phase 5B: Pickup module - service, API, queue page, pickup card, arrival check-in", "passes": true, "priority": 5},
   {"id": "TASK-037", "title": "Phase 6A: Yard module - service, API, task pages, workload board, bay status", "passes": false, "priority": 5},
   {"id": "TASK-038", "title": "Phase 6A: Yard module - prep/loading queues, damage log, cycle count, length tally", "passes": false, "priority": 6},
   {"id": "TASK-039", "title": "Phase 6B: Receiving module - service, API, receiving workflow, discrepancy review", "passes": false, "priority": 6},
