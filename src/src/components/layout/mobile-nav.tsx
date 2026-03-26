@@ -25,7 +25,7 @@ const MOBILE_NAV_ITEMS: MobileNavItem[] = [
   { label: "Orders", href: "/orders", icon: ClipboardList, permission: "orders.view" },
   { label: "Dispatch", href: "/dispatch", icon: Truck, permission: "dispatch.view_board" },
   { label: "Yard", href: "/yard", icon: Warehouse, permission: "yard.view_tasks" },
-  { label: "More", href: "/more", icon: MoreHorizontal },
+  { label: "More", href: "/admin", icon: MoreHorizontal },
 ];
 
 export function MobileNav() {
