@@ -1,10 +1,11 @@
 import { hash } from "bcryptjs";
+import type { PrismaClient } from "@prisma/client";
 
 /**
  * Seeds Organization Map module data: users, org units, role templates,
  * skills, business tasks, task assignments, and coverage gaps.
  */
-export default async function seedOrgMap(prisma: any) {
+export default async function seedOrgMap(prisma: PrismaClient) {
   console.log("Seeding Organization Map...");
 
   const admin = await prisma.user.findFirst({ where: { email: "admin@expresslumber.com" } });

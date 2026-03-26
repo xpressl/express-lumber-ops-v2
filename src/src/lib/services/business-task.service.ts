@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { TaskStatus, TaskFrequency, TaskRiskLevel, AssignmentType } from "@prisma/client";
 
 /** List business tasks with filters and pagination */
 export async function listBusinessTasks(filters?: {
@@ -9,16 +10,17 @@ export async function listBusinessTasks(filters?: {
   search?: string;
   page?: number;
   limit?: number;
-}) {
+}, scopeFilter?: Record<string, unknown>) {
   const page = filters?.page ?? 1;
   const limit = filters?.limit ?? 20;
   const skip = (page - 1) * limit;
 
   const where = {
     deletedAt: null,
+    ...scopeFilter,
     ...(filters?.category ? { category: filters.category } : {}),
     ...(filters?.processArea ? { processArea: filters.processArea } : {}),
-    ...(filters?.status ? { status: filters.status as never } : {}),
+    ...(filters?.status ? { status: filters.status as TaskStatus } : {}),
     ...(filters?.isCritical !== undefined
       ? { isCritical: filters.isCritical }
       : {}),
@@ -54,9 +56,9 @@ export async function listBusinessTasks(filters?: {
 }
 
 /** Get a single business task with full related data */
-export async function getBusinessTaskDetail(id: string) {
-  return prisma.businessTask.findUnique({
-    where: { id },
+export async function getBusinessTaskDetail(id: string, scopeFilter?: Record<string, unknown>) {
+  return prisma.businessTask.findFirst({
+    where: { id, deletedAt: null, ...scopeFilter },
     include: {
       assignments: {
         include: {
@@ -90,8 +92,8 @@ export async function createBusinessTask(
       category: data.category,
       processArea: data.processArea,
       description: data.description,
-      frequency: data.frequency as never,
-      riskLevel: data.riskLevel ? (data.riskLevel as never) : undefined,
+      frequency: data.frequency as TaskFrequency,
+      riskLevel: data.riskLevel ? (data.riskLevel as TaskRiskLevel) : undefined,
       isCritical: data.isCritical ?? false,
       createdBy,
     },
@@ -111,14 +113,15 @@ export async function updateBusinessTask(
     isCritical: boolean;
     status: string;
   }>,
+  scopeFilter?: Record<string, unknown>,
 ) {
   return prisma.businessTask.update({
-    where: { id },
+    where: { id, deletedAt: null, ...scopeFilter },
     data: {
       ...data,
-      frequency: data.frequency ? (data.frequency as never) : undefined,
-      riskLevel: data.riskLevel ? (data.riskLevel as never) : undefined,
-      status: data.status ? (data.status as never) : undefined,
+      frequency: data.frequency ? (data.frequency as TaskFrequency) : undefined,
+      riskLevel: data.riskLevel ? (data.riskLevel as TaskRiskLevel) : undefined,
+      status: data.status ? (data.status as TaskStatus) : undefined,
     },
   });
 }
@@ -143,7 +146,7 @@ export async function assignTask(
       roleTemplateId: data.roleTemplateId,
       userId: data.userId,
       locationId: data.locationId,
-      assignmentType: data.assignmentType as never,
+      assignmentType: data.assignmentType as AssignmentType,
       isPrimary: data.isPrimary ?? true,
       isTemporary: data.isTemporary ?? false,
       notes: data.notes,

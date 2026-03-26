@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import type { GapType, GapSeverity, GapStatus, HiringStatus, HiringUrgency } from "@prisma/client";
 
 /** Aggregate coverage gap statistics by type and severity */
-export async function getCoverageStats() {
+export async function getCoverageStats(scopeFilter?: Record<string, unknown>) {
   const gaps = await prisma.coverageGap.findMany({
-    where: { status: { not: "RESOLVED" } },
+    where: { status: { not: "RESOLVED" }, ...scopeFilter },
     select: { gapType: true, severity: true },
   });
 
@@ -24,14 +25,15 @@ export async function listCoverageGaps(filters?: {
   severity?: string;
   status?: string;
   locationId?: string;
-}) {
+}, scopeFilter?: Record<string, unknown>) {
   return prisma.coverageGap.findMany({
     where: {
-      ...(filters?.gapType ? { gapType: filters.gapType as never } : {}),
-      ...(filters?.severity ? { severity: filters.severity as never } : {}),
+      ...scopeFilter,
+      ...(filters?.gapType ? { gapType: filters.gapType as GapType } : {}),
+      ...(filters?.severity ? { severity: filters.severity as GapSeverity } : {}),
       ...(filters?.status
-        ? { status: filters.status as never }
-        : { status: { not: "RESOLVED" as never } }),
+        ? { status: filters.status as GapStatus }
+        : { status: { not: "RESOLVED" as GapStatus } }),
       ...(filters?.locationId ? { locationId: filters.locationId } : {}),
     },
     include: {
@@ -50,13 +52,14 @@ export async function listHiringRequests(filters?: {
   status?: string;
   urgency?: string;
   locationId?: string;
-}) {
+}, scopeFilter?: Record<string, unknown>) {
   return prisma.hiringRequest.findMany({
     where: {
+      ...scopeFilter,
       ...(filters?.status
-        ? { status: filters.status as never }
-        : { status: { notIn: ["FILLED", "CANCELLED"] } }),
-      ...(filters?.urgency ? { urgency: filters.urgency as never } : {}),
+        ? { status: filters.status as HiringStatus }
+        : { status: { notIn: ["FILLED", "CANCELLED"] as HiringStatus[] } }),
+      ...(filters?.urgency ? { urgency: filters.urgency as HiringUrgency } : {}),
       ...(filters?.locationId ? { locationId: filters.locationId } : {}),
     },
     include: {
@@ -75,12 +78,18 @@ export async function listHiringRequests(filters?: {
 export async function getMatrixData(filters?: {
   locationId?: string;
   category?: string;
-}) {
+  taskLimit?: number;
+  roleLimit?: number;
+}, scopeFilter?: Record<string, unknown>) {
+  const taskLimit = filters?.taskLimit ?? 200;
+  const roleLimit = filters?.roleLimit ?? 50;
+
   const [tasks, roles] = await Promise.all([
     prisma.businessTask.findMany({
       where: {
         deletedAt: null,
         status: "ACTIVE",
+        ...scopeFilter,
         ...(filters?.category ? { category: filters.category } : {}),
       },
       include: {
@@ -95,11 +104,13 @@ export async function getMatrixData(filters?: {
             : {}),
         },
       },
+      take: taskLimit,
       orderBy: [{ category: "asc" }, { name: "asc" }],
     }),
     prisma.roleTemplate.findMany({
-      where: { deletedAt: null, status: "ACTIVE" },
+      where: { deletedAt: null, status: "ACTIVE", ...scopeFilter },
       select: { id: true, title: true, orgUnitId: true },
+      take: roleLimit,
       orderBy: { title: "asc" },
     }),
   ]);

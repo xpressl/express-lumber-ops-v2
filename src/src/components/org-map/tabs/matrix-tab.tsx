@@ -26,15 +26,20 @@ interface MatrixData {
 export function MatrixTab() {
   const [data, setData] = React.useState<MatrixData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const [filterCategory, setFilterCategory] = React.useState("");
 
   const fetchMatrix = React.useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams();
       if (filterCategory) params.set("category", filterCategory);
       const res = await fetch(`/api/org-map/matrix?${params}`);
-      if (res.ok) setData(await res.json());
+      if (!res.ok) { setError("Failed to load matrix data"); return; }
+      setData(await res.json());
+    } catch {
+      setError("Failed to load matrix data");
     } finally {
       setIsLoading(false);
     }
@@ -48,6 +53,7 @@ export function MatrixTab() {
   }, [data]);
 
   if (isLoading) return <LoadingState rows={8} />;
+  if (error) return <p className="text-sm text-destructive px-4 py-8 text-center">{error}</p>;
 
   return (
     <div className="space-y-4">

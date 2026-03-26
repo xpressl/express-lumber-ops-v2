@@ -42,27 +42,6 @@ function OverviewTab({ stats, isLoading }: { stats: OrgStats | null; isLoading: 
         />
       </div>
 
-      {/* Operational health */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {[
-          { dept: "Dispatch", health: stats && stats.coverageGaps === 0 },
-          { dept: "Warehouse", health: true },
-          { dept: "Delivery", health: true },
-          { dept: "Sales", health: true },
-          { dept: "Finance", health: stats && stats.coverageGaps < 3 },
-          { dept: "Purchasing", health: stats && stats.hiringRequests === 0 },
-        ].map(({ dept, health }) => (
-          <Card key={dept}>
-            <CardContent className="pt-3 pb-3 text-center">
-              <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{dept}</p>
-              <p className={`text-sm font-medium mt-1 ${health ? "text-success" : "text-warning"}`}>
-                {health ? "Covered" : "Gaps Found"}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
       {/* Quick summary */}
       <div
         className="rounded-xl border border-border/30 p-6"
@@ -94,16 +73,24 @@ export default function OrgMapPage() {
   const [stats, setStats] = React.useState<OrgStats | null>(null);
   const [units, setUnits] = React.useState<OrgUnitNode[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     (async () => {
+      setError(null);
       try {
         const [statsRes, unitsRes] = await Promise.all([
           fetch("/api/org-map/units?view=stats"),
           fetch("/api/org-map/units"),
         ]);
-        if (statsRes.ok) setStats(await statsRes.json());
-        if (unitsRes.ok) setUnits(await unitsRes.json());
+        if (!statsRes.ok || !unitsRes.ok) {
+          setError("Failed to load organization data");
+          return;
+        }
+        setStats(await statsRes.json());
+        setUnits(await unitsRes.json());
+      } catch {
+        setError("Failed to load organization data");
       } finally {
         setIsLoading(false);
       }
@@ -117,6 +104,8 @@ export default function OrgMapPage() {
         description="Structural blueprint of Express Lumber operations — roles, tasks, and accountability"
         breadcrumbs={[{ label: "Org Map" }]}
       />
+
+      {error && <p className="text-sm text-destructive px-4 py-8 text-center">{error}</p>}
 
       <Tabs defaultValue="overview">
         <TabsList variant="line" className="border-b border-border/30 w-full justify-start">

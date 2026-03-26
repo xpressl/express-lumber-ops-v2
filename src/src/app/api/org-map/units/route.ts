@@ -6,19 +6,19 @@ import { z } from "zod";
 const createUnitSchema = z.object({
   name: z.string().min(1),
   code: z.string().min(1),
-  type: z.string().min(1),
+  type: z.enum(["COMPANY", "REGION", "BRANCH", "DEPARTMENT", "TEAM"]),
   parentId: z.string().optional(),
   description: z.string().optional(),
   headId: z.string().optional(),
   locationId: z.string().optional(),
 });
 
-export const GET = apiHandler(async (request) => {
+export const GET = apiHandler(async (request, { scopeFilter }) => {
   const url = new URL(request.url);
   const view = url.searchParams.get("view");
 
   if (view === "stats") {
-    const stats = await getOrgStats();
+    const stats = await getOrgStats(scopeFilter);
     return jsonResponse(stats);
   }
 
@@ -26,7 +26,7 @@ export const GET = apiHandler(async (request) => {
     type: url.searchParams.get("type") ?? undefined,
     locationId: url.searchParams.get("locationId") ?? undefined,
     status: url.searchParams.get("status") ?? undefined,
-  });
+  }, scopeFilter);
   return jsonResponse(result);
 }, { permission: "admin.manage_users" });
 

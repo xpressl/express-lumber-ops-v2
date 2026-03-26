@@ -100,18 +100,22 @@ export function RolesTab() {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [detail, setDetail] = React.useState<RoleDetail | null>(null);
   const [detailLoading, setDetailLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [detailError, setDetailError] = React.useState<string | null>(null);
 
   const fetchRoles = React.useCallback(async (search?: string) => {
     setIsLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
       const res = await fetch(`/api/org-map/roles?${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        setRoles(Array.isArray(data) ? data : data.data ?? []);
-        setTotal(Array.isArray(data) ? data.length : data.total ?? 0);
-      }
+      if (!res.ok) { setError("Failed to load roles"); return; }
+      const data = await res.json();
+      setRoles(Array.isArray(data) ? data : data.data ?? []);
+      setTotal(Array.isArray(data) ? data.length : data.total ?? 0);
+    } catch {
+      setError("Failed to load roles");
     } finally {
       setIsLoading(false);
     }
@@ -121,15 +125,23 @@ export function RolesTab() {
 
   React.useEffect(() => {
     if (!selectedId) return;
+    const controller = new AbortController();
     setDetailLoading(true);
-    fetch(`/api/org-map/roles/${selectedId}`)
-      .then((r) => (r.ok ? r.json() : null))
+    setDetailError(null);
+    fetch(`/api/org-map/roles/${selectedId}`, { signal: controller.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject("Failed")))
       .then((d) => setDetail(d))
+      .catch((e) => {
+        if (e !== "AbortError" && e?.name !== "AbortError")
+          setDetailError("Failed to load role details");
+      })
       .finally(() => setDetailLoading(false));
+    return () => controller.abort();
   }, [selectedId]);
 
   return (
     <div className="space-y-4">
+      {error && <p className="text-sm text-destructive px-4 py-8 text-center">{error}</p>}
       <DataTable
         columns={columns}
         data={roles}
@@ -151,7 +163,9 @@ export function RolesTab() {
             <SheetTitle className="font-mono">{detail?.title ?? "Role Details"}</SheetTitle>
           </SheetHeader>
 
-          {detailLoading ? <LoadingState rows={3} /> : detail && (
+          {detailLoading ? <LoadingState rows={3} /> : detailError ? (
+            <p className="text-sm text-destructive px-4 py-8 text-center">{detailError}</p>
+          ) : detail && (
             <div className="space-y-4 px-4 pb-6">
               <Card>
                 <CardContent className="p-3 space-y-2">

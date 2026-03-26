@@ -41,10 +41,12 @@ export function CoverageTab() {
   const [gaps, setGaps] = React.useState<GapItem[]>([]);
   const [hiring, setHiring] = React.useState<HiringItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const [filterSeverity, setFilterSeverity] = React.useState("");
 
   React.useEffect(() => {
     (async () => {
+      setError(null);
       try {
         const params = new URLSearchParams();
         if (filterSeverity) params.set("severity", filterSeverity);
@@ -53,15 +55,17 @@ export function CoverageTab() {
           fetch(`/api/org-map/coverage?${params}`),
           fetch("/api/org-map/coverage?view=hiring"),
         ]);
-        if (sRes.ok) setStats(await sRes.json());
-        if (gRes.ok) {
-          const gData = await gRes.json();
-          setGaps(Array.isArray(gData) ? gData : []);
+        if (!sRes.ok || !gRes.ok || !hRes.ok) {
+          setError("Failed to load coverage data");
+          return;
         }
-        if (hRes.ok) {
-          const hData = await hRes.json();
-          setHiring(Array.isArray(hData) ? hData : []);
-        }
+        setStats(await sRes.json());
+        const gData = await gRes.json();
+        setGaps(Array.isArray(gData) ? gData : []);
+        const hData = await hRes.json();
+        setHiring(Array.isArray(hData) ? hData : []);
+      } catch {
+        setError("Failed to load coverage data");
       } finally {
         setIsLoading(false);
       }
@@ -69,6 +73,7 @@ export function CoverageTab() {
   }, [filterSeverity]);
 
   if (isLoading) return <LoadingState rows={6} />;
+  if (error) return <p className="text-sm text-destructive px-4 py-8 text-center">{error}</p>;
 
   return (
     <div className="space-y-6">

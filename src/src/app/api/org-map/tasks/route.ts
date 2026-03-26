@@ -8,12 +8,12 @@ const createTaskSchema = z.object({
   name: z.string().min(1),
   category: z.string().min(1),
   processArea: z.string().min(1),
-  frequency: z.string().min(1),
+  frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL", "EVENT_BASED", "SEASONAL"]),
   description: z.string().optional(),
   isCritical: z.boolean().optional(),
 });
 
-export const GET = apiHandler(async (request) => {
+export const GET = apiHandler(async (request, { scopeFilter }) => {
   const url = new URL(request.url);
   const pagination = parsePagination(url);
 
@@ -25,7 +25,7 @@ export const GET = apiHandler(async (request) => {
     search: url.searchParams.get("search") ?? undefined,
     page: pagination.page,
     limit: pagination.limit,
-  });
+  }, scopeFilter);
 
   return jsonResponse(paginatedResponse(result.data, result.total, pagination));
 }, { permission: "admin.manage_users" });

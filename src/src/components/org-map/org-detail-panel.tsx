@@ -39,14 +39,22 @@ interface OrgDetailPanelProps {
 export function OrgDetailPanel({ unitId, open, onClose }: OrgDetailPanelProps) {
   const [detail, setDetail] = React.useState<UnitDetail | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!unitId || !open) return;
+    const controller = new AbortController();
     setIsLoading(true);
-    fetch(`/api/org-map/units/${unitId}`)
-      .then((r) => (r.ok ? r.json() : null))
+    setError(null);
+    fetch(`/api/org-map/units/${unitId}`, { signal: controller.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject("Failed")))
       .then((data) => setDetail(data))
+      .catch((e) => {
+        if (e !== "AbortError" && e?.name !== "AbortError")
+          setError("Failed to load unit details");
+      })
       .finally(() => setIsLoading(false));
+    return () => controller.abort();
   }, [unitId, open]);
 
   return (
@@ -58,7 +66,9 @@ export function OrgDetailPanel({ unitId, open, onClose }: OrgDetailPanelProps) {
 
         {isLoading && <LoadingState rows={4} />}
 
-        {!isLoading && detail && (
+        {error && <p className="text-sm text-destructive px-4 py-8 text-center">{error}</p>}
+
+        {!isLoading && !error && detail && (
           <div className="space-y-4 px-4 pb-6">
             {/* Unit Info */}
             <Card>

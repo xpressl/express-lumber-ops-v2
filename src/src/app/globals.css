@@ -305,3 +305,12 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.5 0.01 55 / 0.4);
 }
+
+/* Org chart connector line animation */
+@keyframes drawLine {
+  from { stroke-dashoffset: 20; opacity: 0; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+.animate-draw-line {
+  animation: drawLine 0.4s ease-out forwards;
+}

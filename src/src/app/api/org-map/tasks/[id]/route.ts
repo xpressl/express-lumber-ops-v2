@@ -8,10 +8,10 @@ const updateTaskSchema = z.object({
   name: z.string().min(1).optional(),
   category: z.string().optional(),
   processArea: z.string().optional(),
-  frequency: z.string().optional(),
+  frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL", "EVENT_BASED", "SEASONAL"]).optional(),
   description: z.string().optional(),
   isCritical: z.boolean().optional(),
-  status: z.string().optional(),
+  status: z.enum(["ACTIVE", "DRAFT", "RETIRED"]).optional(),
 });
 
 const assignTaskSchema = z.object({
@@ -19,19 +19,19 @@ const assignTaskSchema = z.object({
   isPrimary: z.boolean().optional(),
 });
 
-export const GET = apiHandler(async (_request, { params }) => {
+export const GET = apiHandler(async (_request, { params, scopeFilter }) => {
   const id = params?.["id"];
   if (!id) throw new NotFoundError("BusinessTask");
-  const task = await getBusinessTaskDetail(id);
+  const task = await getBusinessTaskDetail(id, scopeFilter);
   if (!task) throw new NotFoundError("BusinessTask", id);
   return jsonResponse(task);
 }, { permission: "admin.manage_users" });
 
-export const PUT = apiHandler(async (request, { params }) => {
+export const PUT = apiHandler(async (request, { params, scopeFilter }) => {
   const id = params?.["id"];
   if (!id) throw new NotFoundError("BusinessTask");
   const body = await validateBody(request, updateTaskSchema);
-  const updated = await updateBusinessTask(id, body);
+  const updated = await updateBusinessTask(id, body, scopeFilter);
   return jsonResponse(updated);
 }, { permission: "admin.manage_users" });
 

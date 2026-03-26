@@ -10,11 +10,14 @@ interface OrgTreeProps {
   selectedUnitId: string | null;
 }
 
+/** Card width (w-56 = 224px) + flex gap (gap-4 = 16px) */
+const NODE_SLOT_WIDTH = 240;
+
 /** Connector line SVG between parent and children row */
 function ConnectorLines({ childCount }: { childCount: number }) {
   if (childCount === 0) return null;
 
-  const gap = 240; // w-56 (224px) + gap-4 (16px)
+  const gap = NODE_SLOT_WIDTH;
   const totalWidth = childCount * gap;
   const centerX = totalWidth / 2;
   const lineColor = "oklch(0.7 0.12 85 / 0.35)";
@@ -149,16 +152,6 @@ export function OrgTree({ units, onSelectUnit, selectedUnitId }: OrgTreeProps) {
         ))}
       </div>
 
-      {/* Draw-line animation styles */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes drawLine {
-          from { stroke-dashoffset: 20; opacity: 0; }
-          to { stroke-dashoffset: 0; opacity: 1; }
-        }
-        .animate-draw-line {
-          animation: drawLine 0.4s ease-out forwards;
-        }
-      ` }} />
     </div>
   );
 }

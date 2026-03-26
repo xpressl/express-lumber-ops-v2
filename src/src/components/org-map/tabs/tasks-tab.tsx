@@ -123,19 +123,23 @@ export function TasksTab() {
   const [detail, setDetail] = React.useState<TaskDetail | null>(null);
   const [detailLoading, setDetailLoading] = React.useState(false);
   const [filterCritical, setFilterCritical] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [detailError, setDetailError] = React.useState<string | null>(null);
 
   const fetchTasks = React.useCallback(async (p = 1, search?: string) => {
     setIsLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams({ page: String(p), limit: "25" });
       if (search) params.set("search", search);
       if (filterCritical) params.set("isCritical", "true");
       const res = await fetch(`/api/org-map/tasks?${params}`);
-      if (res.ok) {
-        const json = await res.json();
-        setTasks(json.data ?? []);
-        setTotal(json.total ?? 0);
-      }
+      if (!res.ok) { setError("Failed to load tasks"); return; }
+      const json = await res.json();
+      setTasks(json.data ?? []);
+      setTotal(json.total ?? 0);
+    } catch {
+      setError("Failed to load tasks");
     } finally {
       setIsLoading(false);
     }
@@ -145,11 +149,18 @@ export function TasksTab() {
 
   React.useEffect(() => {
     if (!selectedId) return;
+    const controller = new AbortController();
     setDetailLoading(true);
-    fetch(`/api/org-map/tasks/${selectedId}`)
-      .then((r) => (r.ok ? r.json() : null))
+    setDetailError(null);
+    fetch(`/api/org-map/tasks/${selectedId}`, { signal: controller.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject("Failed")))
       .then((d) => setDetail(d))
+      .catch((e) => {
+        if (e !== "AbortError" && e?.name !== "AbortError")
+          setDetailError("Failed to load task details");
+      })
       .finally(() => setDetailLoading(false));
+    return () => controller.abort();
   }, [selectedId]);
 
   return (
@@ -167,6 +178,7 @@ export function TasksTab() {
         </label>
       </div>
 
+      {error && <p className="text-sm text-destructive px-4 py-8 text-center">{error}</p>}
       <DataTable
         columns={columns}
         data={tasks}
@@ -188,7 +200,9 @@ export function TasksTab() {
             <SheetTitle className="font-mono">{detail?.name ?? "Task Details"}</SheetTitle>
           </SheetHeader>
 
-          {detailLoading ? <LoadingState rows={3} /> : detail && (
+          {detailLoading ? <LoadingState rows={3} /> : detailError ? (
+            <p className="text-sm text-destructive px-4 py-8 text-center">{detailError}</p>
+          ) : detail && (
             <div className="space-y-4 px-4 pb-6">
               <Card>
                 <CardContent className="p-3 space-y-2">
