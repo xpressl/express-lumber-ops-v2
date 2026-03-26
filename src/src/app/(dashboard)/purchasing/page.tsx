@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { NewPODialog } from "@/components/purchasing/new-po-dialog";
 
 interface VendorRow { id: string; code: string; name: string; status: string; reliabilityScore: number | null; _count: { purchaseOrders: number; prices: number } }
 interface PORow { id: string; poNumber: string; vendor: { name: string }; status: string; totalAmount: number; _count: { lines: number }; createdAt: string }
@@ -34,22 +35,30 @@ export default function PurchasingPage() {
   const [vendors, setVendors] = React.useState<VendorRow[]>([]);
   const [pos, setPOs] = React.useState<PORow[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [newPOOpen, setNewPOOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const [v, p] = await Promise.all([fetch("/api/purchasing/vendors"), fetch("/api/purchasing/pos")]);
-        if (v.ok) setVendors(await v.json());
-        if (p.ok) setPOs(await p.json());
-      } finally { setIsLoading(false); }
-    })();
+  const fetchData = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [v, p] = await Promise.all([fetch("/api/purchasing/vendors"), fetch("/api/purchasing/pos")]);
+      if (v.ok) setVendors(await v.json());
+      if (p.ok) setPOs(await p.json());
+    } finally { setIsLoading(false); }
   }, []);
+
+  React.useEffect(() => { fetchData(); }, [fetchData]);
 
   return (
     <div className="space-y-8">
       <PageHeader title="Purchasing" description="Vendors, POs, and three-way match"
         breadcrumbs={[{ label: "Purchasing" }]}
-        actions={<Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"><Plus size={15} />New PO</Button>} />
+        actions={
+          <Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4" onClick={() => setNewPOOpen(true)}>
+            <Plus size={15} />New PO
+          </Button>
+        } />
+
+      <NewPODialog open={newPOOpen} onOpenChange={setNewPOOpen} onSuccess={fetchData} />
 
       <Tabs defaultValue="vendors">
         <TabsList className="bg-muted/30 border border-border/40 p-1 rounded-xl h-auto">
@@ -60,11 +69,13 @@ export default function PurchasingPage() {
         </TabsList>
         <TabsContent value="vendors" className="mt-5">
           <DataTable columns={vendorColumns} data={vendors} total={vendors.length} isLoading={isLoading}
-            searchPlaceholder="Search vendors..." emptyMessage="No vendors" rowKey={(r) => r.id} />
+            searchPlaceholder="Search vendors..." emptyMessage="No vendors" rowKey={(r) => r.id}
+            onRowClick={(row) => router.push(`/purchasing/vendors/${row.id}`)} />
         </TabsContent>
         <TabsContent value="pos" className="mt-5">
           <DataTable columns={poColumns} data={pos} total={pos.length} isLoading={isLoading}
-            emptyMessage="No purchase orders" rowKey={(r) => r.id} />
+            emptyMessage="No purchase orders" rowKey={(r) => r.id}
+            onRowClick={(row) => router.push(`/purchasing/pos/${row.id}`)} />
         </TabsContent>
         <TabsContent value="match" className="mt-5 text-center text-muted-foreground text-sm py-8">
           Three-way match review queue (PO vs Receipt vs Invoice)

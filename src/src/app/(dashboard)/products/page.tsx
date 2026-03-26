@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { NewProductDialog } from "@/components/products/new-product-dialog";
 
 interface ProductRow {
   id: string;
@@ -55,7 +56,9 @@ export default function ProductsPage() {
   return (
     <div className="space-y-8">
       <PageHeader title="Product Catalogue" description="Products with cost, sell price, margin, and vendor info"
-        breadcrumbs={[{ label: "Products" }]} />
+        breadcrumbs={[{ label: "Products" }]}
+        actions={<NewProductDialog onCreated={() => { setPage(1); void fetch_(); }} />}
+      />
       <DataTable columns={columns} data={data} total={total} page={page}
         totalPages={Math.ceil(total / 20)}
         onPageChange={(p) => { setPage(p); void fetch_(p); }}

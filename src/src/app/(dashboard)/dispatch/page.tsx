@@ -1,15 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { KPICard } from "@/components/shared/kpi-card";
 import { Button } from "@/components/ui/button";
+import { NewRouteDialog } from "@/components/dispatch/new-route-dialog";
 import { format } from "date-fns";
 import { Truck, Package, Route, ClipboardList, Plus } from "lucide-react";
-
 interface DispatchOrderRow {
   id: string;
   orderNumber: string;
@@ -22,7 +23,6 @@ interface DispatchOrderRow {
   readinessPercent: number;
   truckId: string | null;
 }
-
 interface RouteRow {
   id: string;
   routeNumber: string;
@@ -32,7 +32,6 @@ interface RouteRow {
   completedStops: number;
   totalWeight: number | null;
 }
-
 const orderColumns: DataTableColumn<DispatchOrderRow>[] = [
   {
     id: "order",
@@ -109,7 +108,6 @@ const orderColumns: DataTableColumn<DispatchOrderRow>[] = [
       ),
   },
 ];
-
 const routeColumns: DataTableColumn<RouteRow>[] = [
   {
     id: "route",
@@ -162,26 +160,30 @@ const routeColumns: DataTableColumn<RouteRow>[] = [
     className: "text-right",
   },
 ];
-
 export default function DispatchPage() {
+  const router = useRouter();
   const [orders, setOrders] = React.useState<DispatchOrderRow[]>([]);
   const [routes, setRoutes] = React.useState<RouteRow[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [routeDialogOpen, setRouteDialogOpen] = React.useState(false);
+
+  const fetchData = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [ordersRes, routesRes] = await Promise.all([
+        fetch("/api/dispatch"),
+        fetch("/api/dispatch/routes"),
+      ]);
+      if (ordersRes.ok) setOrders(await ordersRes.json());
+      if (routesRes.ok) setRoutes(await routesRes.json());
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   React.useEffect(() => {
-    (async () => {
-      try {
-        const [ordersRes, routesRes] = await Promise.all([
-          fetch("/api/dispatch"),
-          fetch("/api/dispatch/routes"),
-        ]);
-        if (ordersRes.ok) setOrders(await ordersRes.json());
-        if (routesRes.ok) setRoutes(await routesRes.json());
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const unassigned = orders.filter((o) => !o.truckId).length;
   const ready = orders.filter((o) => o.readinessPercent === 100).length;
@@ -194,11 +196,26 @@ export default function DispatchPage() {
         description="Plan routes, assign trucks, and track deliveries"
         breadcrumbs={[{ label: "Dispatch" }]}
         actions={
-          <Button className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4">
+          <Button
+            className="rounded-lg gap-2 font-medium text-[13px] h-9 px-4"
+            onClick={() => setRouteDialogOpen(true)}
+          >
             <Plus size={15} />
             New Route
           </Button>
         }
+      />
+
+      <NewRouteDialog
+        open={routeDialogOpen}
+        onOpenChange={setRouteDialogOpen}
+        onSuccess={fetchData}
+        orders={orders.map((o) => ({
+          id: o.id,
+          orderNumber: o.orderNumber,
+          customer: o.customer,
+          totalWeight: o.totalWeight,
+        }))}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -261,6 +278,7 @@ export default function DispatchPage() {
             searchPlaceholder="Search orders..."
             emptyMessage="No orders for dispatch"
             rowKey={(r) => r.id}
+            onRowClick={(row) => router.push(`/orders/${row.id}`)}
           />
         </TabsContent>
 
@@ -272,6 +290,7 @@ export default function DispatchPage() {
             isLoading={isLoading}
             emptyMessage="No routes created"
             rowKey={(r) => r.id}
+            onRowClick={(row) => router.push(`/dispatch/log?route=${row.id}`)}
           />
         </TabsContent>
       </Tabs>
