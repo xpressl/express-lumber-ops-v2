@@ -20,7 +20,7 @@
   {"id": "TASK-019", "title": "Phase 2B: Zod validators for all domains", "passes": true, "priority": 3},
   {"id": "TASK-020", "title": "Phase 2C: Order state machine definition and tests", "passes": true, "priority": 3},
   {"id": "TASK-021", "title": "Phase 2D: TypeScript type definitions for all domains", "passes": true, "priority": 3},
-  {"id": "TASK-022", "title": "Phase 3A: Auth flows - login, forgot password, NextAuth config, guards", "passes": false, "priority": 3},
+  {"id": "TASK-022", "title": "Phase 3A: Auth flows - login, forgot password, NextAuth config, guards", "passes": true, "priority": 3},
   {"id": "TASK-023", "title": "Phase 3B: Dashboard layout - sidebar, topbar, mobile nav", "passes": false, "priority": 3},
   {"id": "TASK-024", "title": "Phase 3C: Admin - user management (list, detail, create, API, service)", "passes": false, "priority": 3},
   {"id": "TASK-025", "title": "Phase 3C: Admin - role and permission management (list, detail, create, API, service)", "passes": false, "priority": 3},

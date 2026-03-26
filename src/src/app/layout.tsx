@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { SessionProvider } from "@/components/providers/session-provider";
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
@@ -45,7 +46,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );
