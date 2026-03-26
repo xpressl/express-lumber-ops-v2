@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions, type ExtendedSession, type SessionUser } from "./options";
+import { canAccess } from "../permissions/evaluate";
 
 /** Get the current authenticated session or null */
 export async function getSession(): Promise<ExtendedSession | null> {
@@ -31,12 +32,15 @@ export async function requireRole(allowedRoles: string[]): Promise<SessionUser> 
   return user;
 }
 
-/** Require a specific permission - throws if missing */
-export async function requirePermission(permissionCode: string): Promise<SessionUser> {
+/** Require a specific permission - checks live DB via the permission engine */
+export async function requirePermission(
+  permissionCode: string,
+  entityLocationId?: string,
+  entityOwnerId?: string,
+): Promise<SessionUser> {
   const user = await requireAuth();
-  const hasPermission =
-    user.roles.includes("SUPER_ADMIN") || user.permissions.includes(permissionCode);
-  if (!hasPermission) {
+  const allowed = await canAccess(user.id, permissionCode, entityLocationId, entityOwnerId);
+  if (!allowed) {
     throw new AuthError("FORBIDDEN", `Missing permission: ${permissionCode}`);
   }
   return user;

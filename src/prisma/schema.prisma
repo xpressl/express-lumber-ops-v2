@@ -136,6 +136,10 @@ model User {
   exceptionsOwned    Exception[]          @relation("ExceptionOwner")
   exceptionsResolved Exception[]          @relation("ExceptionResolver")
   exceptionsEscalated Exception[]         @relation("ExceptionEscalatedTo")
+  orgUnitsHeaded     OrganizationUnit[]   @relation("OrgUnitHead")
+  employeeSkills     EmployeeSkill[]
+  orgTaskAssignments TaskAssignment[]    @relation("TaskAssignUser")
+  coverageGaps       CoverageGap[]      @relation("GapUser")
 
   @@index([email])
   @@index([status])
@@ -198,6 +202,10 @@ model Location {
   approvalRequests  ApprovalRequest[]
   auditEvents       AuditEvent[]
   exceptions        Exception[]
+  orgUnits          OrganizationUnit[]   @relation("OrgUnitLocation")
+  orgTaskAssignments TaskAssignment[]    @relation("TaskAssignLocation")
+  coverageGaps       CoverageGap[]      @relation("GapLocation")
+  hiringRequests     HiringRequest[]    @relation("HiringLocation")
 
   @@index([code])
   @@index([isActive])
@@ -1798,4 +1806,392 @@ model HealthCheck {
   id        String   @id @default(cuid())
   status    String   @default("ok")
   checkedAt DateTime @default(now())
+}
+
+// ============================================================
+// ORGANIZATION MAP ENUMS
+// ============================================================
+
+enum OrgUnitType {
+  COMPANY
+  REGION
+  BRANCH
+  DEPARTMENT
+  TEAM
+}
+
+enum OrgUnitStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+}
+
+enum RoleTemplateStatus {
+  ACTIVE
+  DRAFT
+  DEPRECATED
+}
+
+enum TaskFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  EVENT_BASED
+  SEASONAL
+}
+
+enum TaskRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskStatus {
+  ACTIVE
+  DRAFT
+  RETIRED
+}
+
+enum AssignmentType {
+  RESPONSIBLE
+  ACCOUNTABLE
+  CONSULTED
+  INFORMED
+  BACKUP
+}
+
+enum GapType {
+  NO_OWNER
+  NO_BACKUP
+  OVERLOADED
+  SKILL_MISMATCH
+  PERMISSION_MISMATCH
+  SINGLE_POINT_OF_FAILURE
+  MISSING_ROLE
+  VACANCY_WITH_TASKS
+}
+
+enum GapSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum GapStatus {
+  OPEN
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
+
+enum HiringUrgency {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum HiringStatus {
+  DRAFT
+  OPEN
+  APPROVED
+  IN_PROGRESS
+  FILLED
+  CANCELLED
+}
+
+// ============================================================
+// ORGANIZATION MAP: ORG UNITS
+// ============================================================
+
+model OrganizationUnit {
+  id          String        @id @default(cuid())
+  parentId    String?
+  type        OrgUnitType
+  name        String
+  code        String        @unique
+  status      OrgUnitStatus @default(ACTIVE)
+  description String?
+  headId      String?
+  locationId  String?
+  sortOrder   Int           @default(0)
+  activeFrom  DateTime?
+  activeTo    DateTime?
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  createdBy   String
+
+  // Relations
+  parent        OrganizationUnit?  @relation("OrgUnitTree", fields: [parentId], references: [id])
+  children      OrganizationUnit[] @relation("OrgUnitTree")
+  head          User?              @relation("OrgUnitHead", fields: [headId], references: [id])
+  location      Location?          @relation("OrgUnitLocation", fields: [locationId], references: [id])
+  roleTemplates RoleTemplate[]
+  coverageGaps  CoverageGap[]      @relation("GapOrgUnit")
+  hiringRequests HiringRequest[]   @relation("HiringOrgUnit")
+
+  @@index([parentId])
+  @@index([type])
+  @@index([locationId])
+  @@index([headId])
+  @@index([deletedAt])
+}
+
+// ============================================================
+// ORGANIZATION MAP: ROLE TEMPLATES
+// ============================================================
+
+model RoleTemplate {
+  id                  String             @id @default(cuid())
+  title               String
+  orgUnitId           String?
+  branchScope         Json?
+  summary             String?
+  mission             String?
+  defaultDashboard    String?
+  criticality         TaskRiskLevel      @default(MEDIUM)
+  targetHeadcount     Int                @default(1)
+  status              RoleTemplateStatus @default(DRAFT)
+  kpis                Json?
+  approvalRights      Json?
+  backupExpectations  String?
+  certifications      Json?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  deletedAt           DateTime?
+  createdBy           String
+
+  // Relations
+  orgUnit             OrganizationUnit?  @relation(fields: [orgUnitId], references: [id])
+  requiredSkills      RoleRequiredSkill[]
+  taskAssignments     TaskAssignment[]   @relation("TaskAssignRole")
+  permissionReqs      PermissionRequirement[] @relation("PermReqRole")
+  coverageGaps        CoverageGap[]      @relation("GapRole")
+  hiringRequests      HiringRequest[]    @relation("HiringRole")
+
+  @@index([orgUnitId])
+  @@index([status])
+  @@index([criticality])
+  @@index([deletedAt])
+}
+
+// ============================================================
+// ORGANIZATION MAP: SKILLS
+// ============================================================
+
+model Skill {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  category    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  roleRequirements RoleRequiredSkill[]
+  employeeSkills   EmployeeSkill[]
+
+  @@index([category])
+}
+
+model RoleRequiredSkill {
+  id             String       @id @default(cuid())
+  roleTemplateId String
+  skillId        String
+  requiredLevel  Int          @default(1)
+
+  roleTemplate   RoleTemplate @relation(fields: [roleTemplateId], references: [id], onDelete: Cascade)
+  skill          Skill        @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([roleTemplateId, skillId])
+  @@index([roleTemplateId])
+  @@index([skillId])
+}
+
+model EmployeeSkill {
+  id             String    @id @default(cuid())
+  userId         String
+  skillId        String
+  currentLevel   Int       @default(1)
+  verified       Boolean   @default(false)
+  lastReviewedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill          Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+}
+
+// ============================================================
+// ORGANIZATION MAP: BUSINESS TASKS
+// ============================================================
+
+model BusinessTask {
+  id             String        @id @default(cuid())
+  name           String
+  category       String
+  processArea    String
+  description    String?
+  triggerType    String?
+  frequency      TaskFrequency
+  riskLevel      TaskRiskLevel @default(MEDIUM)
+  isCritical     Boolean       @default(false)
+  branchScope    Json?
+  linkedModule   String?
+  linkedSopUrl   String?
+  linkedKpi      String?
+  status         TaskStatus    @default(DRAFT)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+  createdBy      String
+
+  // Relations
+  assignments    TaskAssignment[]
+  permissionReqs PermissionRequirement[] @relation("PermReqTask")
+  coverageGaps   CoverageGap[]          @relation("GapTask")
+
+  @@index([category])
+  @@index([processArea])
+  @@index([status])
+  @@index([isCritical])
+  @@index([deletedAt])
+}
+
+// ============================================================
+// ORGANIZATION MAP: TASK ASSIGNMENTS (RACI)
+// ============================================================
+
+model TaskAssignment {
+  id              String         @id @default(cuid())
+  taskId          String
+  roleTemplateId  String?
+  userId          String?
+  locationId      String?
+  assignmentType  AssignmentType
+  isPrimary       Boolean        @default(true)
+  isTemporary     Boolean        @default(false)
+  effectiveFrom   DateTime?
+  effectiveTo     DateTime?
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  createdBy       String
+
+  // Relations
+  task            BusinessTask   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  roleTemplate    RoleTemplate?  @relation("TaskAssignRole", fields: [roleTemplateId], references: [id])
+  user            User?          @relation("TaskAssignUser", fields: [userId], references: [id])
+  location        Location?      @relation("TaskAssignLocation", fields: [locationId], references: [id])
+
+  @@index([taskId])
+  @@index([roleTemplateId])
+  @@index([userId])
+  @@index([locationId])
+  @@index([assignmentType])
+}
+
+// ============================================================
+// ORGANIZATION MAP: PERMISSION REQUIREMENTS
+// ============================================================
+
+model PermissionRequirement {
+  id               String       @id @default(cuid())
+  taskId           String?
+  roleTemplateId   String?
+  permissionCode   String
+  scopeRequirement ScopeType?
+
+  // Relations
+  task             BusinessTask?  @relation("PermReqTask", fields: [taskId], references: [id], onDelete: Cascade)
+  roleTemplate     RoleTemplate?  @relation("PermReqRole", fields: [roleTemplateId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([roleTemplateId])
+  @@index([permissionCode])
+}
+
+// ============================================================
+// ORGANIZATION MAP: COVERAGE GAPS
+// ============================================================
+
+model CoverageGap {
+  id                String       @id @default(cuid())
+  gapType           GapType
+  severity          GapSeverity
+  locationId        String?
+  taskId            String?
+  roleTemplateId    String?
+  userId            String?
+  orgUnitId         String?
+  summary           String
+  recommendedAction String?
+  status            GapStatus    @default(OPEN)
+  resolvedAt        DateTime?
+  resolvedBy        String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // Relations
+  location          Location?      @relation("GapLocation", fields: [locationId], references: [id])
+  task              BusinessTask?  @relation("GapTask", fields: [taskId], references: [id])
+  roleTemplate      RoleTemplate?  @relation("GapRole", fields: [roleTemplateId], references: [id])
+  user              User?          @relation("GapUser", fields: [userId], references: [id])
+  orgUnit           OrganizationUnit? @relation("GapOrgUnit", fields: [orgUnitId], references: [id])
+  hiringRequests    HiringRequest[]   @relation("HiringGap")
+
+  @@index([gapType])
+  @@index([severity])
+  @@index([status])
+  @@index([locationId])
+  @@index([taskId])
+  @@index([roleTemplateId])
+  @@index([userId])
+  @@index([orgUnitId])
+}
+
+// ============================================================
+// ORGANIZATION MAP: HIRING REQUESTS
+// ============================================================
+
+model HiringRequest {
+  id                   String        @id @default(cuid())
+  locationId           String?
+  orgUnitId            String?
+  roleTemplateId       String
+  reason               String
+  linkedGapId          String?
+  urgency              HiringUrgency @default(MEDIUM)
+  status               HiringStatus  @default(DRAFT)
+  impactIfNotFilled    String?
+  temporaryReassignment String?
+  crossTrainOption     String?
+  notes                String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  createdBy            String
+
+  // Relations
+  location             Location?         @relation("HiringLocation", fields: [locationId], references: [id])
+  orgUnit              OrganizationUnit? @relation("HiringOrgUnit", fields: [orgUnitId], references: [id])
+  roleTemplate         RoleTemplate      @relation("HiringRole", fields: [roleTemplateId], references: [id])
+  linkedGap            CoverageGap?      @relation("HiringGap", fields: [linkedGapId], references: [id])
+
+  @@index([locationId])
+  @@index([orgUnitId])
+  @@index([roleTemplateId])
+  @@index([urgency])
+  @@index([status])
+  @@index([linkedGapId])
 }

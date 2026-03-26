@@ -96,24 +96,30 @@ const columns: DataTableColumn<RoleRow>[] = [
 export function RolesTab() {
   const [roles, setRoles] = React.useState<RoleRow[]>([]);
   const [total, setTotal] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const [totalPages, setTotalPages] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [detail, setDetail] = React.useState<RoleDetail | null>(null);
   const [detailLoading, setDetailLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [detailError, setDetailError] = React.useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState<string | undefined>();
 
-  const fetchRoles = React.useCallback(async (search?: string) => {
+  const fetchRoles = React.useCallback(async (search?: string, pageNum = 1) => {
     setIsLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
+      params.set("page", String(pageNum));
       const res = await fetch(`/api/org-map/roles?${params}`);
       if (!res.ok) { setError("Failed to load roles"); return; }
       const data = await res.json();
-      setRoles(Array.isArray(data) ? data : data.data ?? []);
-      setTotal(Array.isArray(data) ? data.length : data.total ?? 0);
+      setRoles(data.data ?? []);
+      setTotal(data.total ?? 0);
+      setPage(data.page ?? 1);
+      setTotalPages(data.totalPages ?? 1);
     } catch {
       setError("Failed to load roles");
     } finally {
@@ -146,10 +152,10 @@ export function RolesTab() {
         columns={columns}
         data={roles}
         total={total}
-        page={1}
-        totalPages={1}
-        onPageChange={() => {}}
-        onSearch={(q) => void fetchRoles(q)}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={(p) => void fetchRoles(searchQuery, p)}
+        onSearch={(q) => { setSearchQuery(q); void fetchRoles(q, 1); }}
         searchPlaceholder="Search roles..."
         isLoading={isLoading}
         emptyMessage="No role templates found"
