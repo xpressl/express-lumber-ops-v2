@@ -1,0 +1,15 @@
+{
+  "id": "TASK-015",
+  "title": "Phase 1E: Shared UI - KPICard, EmptyState, LoadingState, FileUpload, SearchCommand",
+  "description": "Build shared UI: KPICard with metric, trend indicator, and sparkline; EmptyState and LoadingState components; FileUpload with S3/MinIO integration; SearchCommand shell for command palette.",
+  "steps": [
+    "Create src/components/shared/kpi-card.tsx with metric display, trend arrow, and Recharts sparkline",
+    "Create src/components/shared/states.tsx with EmptyState (illustration + message + action) and LoadingState (skeleton)",
+    "Create src/components/shared/file-upload.tsx with drag-and-drop file upload, S3/MinIO presigned URL integration",
+    "Support image preview, file type validation, progress indicator",
+    "Create src/components/shared/search-command.tsx with Cmd+K command palette shell",
+    "Include recent items, pinned records, and quick action sections"
+  ],
+  "files": ["src/components/shared/kpi-card.tsx", "src/components/shared/states.tsx", "src/components/shared/file-upload.tsx", "src/components/shared/search-command.tsx"],
+  "dependencies": ["TASK-006"]
+}

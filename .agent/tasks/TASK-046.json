@@ -1,0 +1,19 @@
+{
+  "id": "TASK-046",
+  "title": "Phase 8B: Collections UI - aging dashboard, accounts, call log, promises, disputes",
+  "description": "Build collections UI: aging dashboard with bucket charts, my accounts page, account detail page with contact history, call log form, promise-to-pay form and tracker, dispute form, payment plan builder, escalation queue, credit hold controls, and collector performance dashboard.",
+  "steps": [
+    "Create src/app/(dashboard)/collections/page.tsx with aging dashboard (bucket breakdown, charts, KPIs)",
+    "Create src/app/(dashboard)/collections/my-accounts/page.tsx with collector's assigned accounts",
+    "Create src/app/(dashboard)/collections/accounts/[id]/page.tsx with account detail (contact history, promises, disputes, payment plans, memos)",
+    "Create src/components/collections/call-log-form.tsx with call logging form and history display",
+    "Create src/components/collections/promise-form.tsx with promise-to-pay creation and tracking",
+    "Create src/components/collections/dispute-form.tsx with dispute creation and aging tracker",
+    "Create src/components/collections/payment-plan.tsx with payment plan builder",
+    "Create src/app/(dashboard)/collections/escalations/page.tsx with escalation queue",
+    "Create src/components/collections/credit-hold-controls.tsx with recommend/approve/release controls",
+    "Create src/app/(dashboard)/collections/performance/page.tsx with collector performance dashboard"
+  ],
+  "files": ["src/app/(dashboard)/collections/page.tsx", "src/app/(dashboard)/collections/my-accounts/page.tsx", "src/app/(dashboard)/collections/accounts/[id]/page.tsx", "src/components/collections/call-log-form.tsx", "src/components/collections/promise-form.tsx", "src/components/collections/dispute-form.tsx", "src/components/collections/payment-plan.tsx", "src/app/(dashboard)/collections/escalations/page.tsx", "src/components/collections/credit-hold-controls.tsx", "src/app/(dashboard)/collections/performance/page.tsx"],
+  "dependencies": ["TASK-045"]
+}

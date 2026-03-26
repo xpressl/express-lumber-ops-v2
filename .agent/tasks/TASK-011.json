@@ -1,0 +1,17 @@
+{
+  "id": "TASK-011",
+  "title": "Phase 1C: Approval, audit, exception, and notification services",
+  "description": "Build the approval engine service (create requests, approve/deny, escalation), audit event service (create and query audit events), exception engine service (create, assign, resolve, escalate exceptions), and notification service shell (internal, SMS, email placeholders).",
+  "steps": [
+    "Create src/lib/approvals/engine.ts with approval request lifecycle management",
+    "Implement approval chain: request -> pending -> approved/denied, with multi-step support",
+    "Create src/lib/events/audit.ts with audit event creation and querying",
+    "Implement timeline assembly from audit events for any entity",
+    "Create src/lib/events/security.ts with security event logging (login, permission changes, etc.)",
+    "Create src/lib/exceptions/engine.ts with exception lifecycle (create, assign, resolve, escalate)",
+    "Implement SLA timer tracking and auto-escalation logic",
+    "Create src/lib/notifications/service.ts with notification dispatch (internal alerts, SMS shell, email shell)"
+  ],
+  "files": ["src/lib/approvals/engine.ts", "src/lib/events/audit.ts", "src/lib/events/security.ts", "src/lib/exceptions/engine.ts", "src/lib/notifications/service.ts"],
+  "dependencies": ["TASK-009"]
+}

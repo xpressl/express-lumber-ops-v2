@@ -39,7 +39,12 @@ export const addOrderItemSchema = z.object({
 });
 
 export const transitionOrderSchema = z.object({
-  toStatus: z.string().min(1),
+  toStatus: z.enum([
+    "DRAFT", "IMPORTED", "NEEDS_REVIEW", "APPROVED", "ON_CREDIT_HOLD",
+    "WAITING_INVENTORY", "PARTIALLY_READY", "READY", "LOADING", "LOADED",
+    "DISPATCHED", "OUT_FOR_DELIVERY", "DELIVERED", "PICKUP_READY", "PICKED_UP",
+    "REFUSED", "RESCHEDULED", "CANCELLED", "CLOSED",
+  ]),
   reason: z.string().max(500).optional(),
 });
 

@@ -1,0 +1,16 @@
+{
+  "id": "TASK-060",
+  "title": "Phase 13: Workflow, permission, and mobile tests",
+  "description": "Write workflow tests covering complete business flows (order lifecycle, dispatch flow, delivery flow, collections flow), role/permission tests for every role x every action, import validation tests, and mobile workflow tests for driver PWA, yard, and receiving.",
+  "steps": [
+    "Write workflow tests for order lifecycle: DRAFT -> SUBMITTED -> CONFIRMED -> PICKING -> PICKED -> LOADING -> LOADED -> IN_TRANSIT -> DELIVERED -> COMPLETED",
+    "Write workflow tests for dispatch flow: assign orders -> create route -> sequence stops -> dispatch -> track",
+    "Write workflow tests for delivery flow: start route -> arrive -> deliver -> capture POD/COD -> complete route",
+    "Write workflow tests for collections flow: age -> assign -> call -> promise -> follow up -> resolve",
+    "Write role/permission tests: every role x every action (view, create, edit, delete, approve)",
+    "Write import validation tests: each import type with good data, bad data, duplicates, partial matches",
+    "Write mobile workflow tests for driver PWA (offline/online), yard task flow, receiving workflow"
+  ],
+  "files": ["src/__tests__/workflows/", "src/__tests__/permissions/", "src/__tests__/mobile/"],
+  "dependencies": ["TASK-059"]
+}

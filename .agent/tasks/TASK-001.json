@@ -1,0 +1,14 @@
+{
+  "id": "TASK-001",
+  "title": "Phase 0: Core documentation (PLAN, PROGRESS, DECISIONS, RISKS)",
+  "description": "Create the foundational project documentation files: PLAN.md (build plan overview), PROGRESS.md (phase tracking), DECISIONS.md (architectural decision records), and RISKS.md (risk register with mitigations). These docs set the stage for all implementation work.",
+  "steps": [
+    "Create docs/ directory if not exists",
+    "Write docs/PLAN.md with build plan overview referencing PRD",
+    "Write docs/PROGRESS.md with phase tracking template (all phases listed, status: NOT_STARTED)",
+    "Write docs/DECISIONS.md with ADR template and initial architecture decisions",
+    "Write docs/RISKS.md with risk register covering technical, operational, and integration risks"
+  ],
+  "files": ["docs/PLAN.md", "docs/PROGRESS.md", "docs/DECISIONS.md", "docs/RISKS.md"],
+  "dependencies": []
+}

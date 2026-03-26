@@ -1,0 +1,17 @@
+{
+  "id": "TASK-051",
+  "title": "Phase 10B: Purchasing module - service, API, vendor directory, RFQ, PO tracking",
+  "description": "Build purchasing module backend and primary UI: purchasing service with RFQ, PO creation, three-way match, and vendor scorecards; API routes; vendor directory page; RFQ creation and comparison page; and PO creation and tracking page.",
+  "steps": [
+    "Create src/lib/services/purchasing.service.ts with RFQ management, PO lifecycle, three-way match logic, vendor scoring",
+    "Create src/app/api/purchasing/rfqs/route.ts with RFQ management",
+    "Create src/app/api/purchasing/pos/route.ts with PO management",
+    "Create src/app/api/purchasing/vendors/route.ts with vendor operations",
+    "Create src/app/api/purchasing/match/route.ts with three-way match operations",
+    "Create src/app/(dashboard)/purchasing/vendors/page.tsx with vendor directory DataTable",
+    "Create src/app/(dashboard)/purchasing/rfqs/page.tsx with RFQ creation and side-by-side comparison",
+    "Create src/app/(dashboard)/purchasing/pos/page.tsx with PO creation and tracking"
+  ],
+  "files": ["src/lib/services/purchasing.service.ts", "src/app/api/purchasing/rfqs/route.ts", "src/app/api/purchasing/pos/route.ts", "src/app/api/purchasing/vendors/route.ts", "src/app/api/purchasing/match/route.ts", "src/app/(dashboard)/purchasing/vendors/page.tsx", "src/app/(dashboard)/purchasing/rfqs/page.tsx", "src/app/(dashboard)/purchasing/pos/page.tsx"],
+  "dependencies": ["TASK-030"]
+}

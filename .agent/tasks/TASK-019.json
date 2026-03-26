@@ -1,0 +1,19 @@
+{
+  "id": "TASK-019",
+  "title": "Phase 2B: Zod validators for all domains",
+  "description": "Create Zod validation schemas for all domains: customer, product, order, dispatch, delivery, receiving, collections, pricing/purchasing, CRM/estimate, and import validators.",
+  "steps": [
+    "Create src/lib/validators/customer.ts (create, update, search, contact, jobsite schemas)",
+    "Create src/lib/validators/product.ts (create, update, search, category schemas)",
+    "Create src/lib/validators/order.ts (create, update, add item, transition, search schemas)",
+    "Create src/lib/validators/dispatch.ts (assign truck, create route, sequence stops schemas)",
+    "Create src/lib/validators/delivery.ts (POD capture, COD capture, stop outcome schemas)",
+    "Create src/lib/validators/receiving.ts (receive line, discrepancy, vendor issue schemas)",
+    "Create src/lib/validators/collections.ts (call log, promise, dispute, payment plan schemas)",
+    "Create src/lib/validators/pricing.ts (price import, cost change, quote schemas)",
+    "Create src/lib/validators/crm.ts (lead, estimate, follow-up schemas)",
+    "Create src/lib/validators/import.ts (upload, mapping, approval schemas)"
+  ],
+  "files": ["src/lib/validators/customer.ts", "src/lib/validators/product.ts", "src/lib/validators/order.ts", "src/lib/validators/dispatch.ts", "src/lib/validators/delivery.ts", "src/lib/validators/receiving.ts", "src/lib/validators/collections.ts", "src/lib/validators/pricing.ts", "src/lib/validators/crm.ts", "src/lib/validators/import.ts"],
+  "dependencies": ["TASK-018"]
+}

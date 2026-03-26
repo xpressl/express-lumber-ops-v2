@@ -1,0 +1,16 @@
+{
+  "id": "TASK-044",
+  "title": "Phase 7C: Delivery backend - service, driver session, API routes, socket events",
+  "description": "Build delivery backend: delivery service (stop management, POD processing, COD processing, route completion), driver session service, delivery API routes, and Socket.io events for real-time delivery tracking.",
+  "steps": [
+    "Create src/lib/services/delivery.service.ts with stop management, POD receipt processing, COD collection processing, route completion logic",
+    "Create src/lib/services/driver-session.service.ts with driver session management (start/end shift, active route tracking)",
+    "Create src/app/api/delivery/route.ts with delivery operations",
+    "Create src/app/api/delivery/stops/[id]/route.ts with stop status updates",
+    "Create src/app/api/delivery/stops/[id]/pod/route.ts with POD submission",
+    "Create src/app/api/delivery/stops/[id]/cod/route.ts with COD submission",
+    "Create src/lib/socket-events/delivery.ts with real-time events (stop-completed, driver-location-updated, route-completed)"
+  ],
+  "files": ["src/lib/services/delivery.service.ts", "src/lib/services/driver-session.service.ts", "src/app/api/delivery/route.ts", "src/app/api/delivery/stops/[id]/route.ts", "src/app/api/delivery/stops/[id]/pod/route.ts", "src/app/api/delivery/stops/[id]/cod/route.ts", "src/lib/socket-events/delivery.ts"],
+  "dependencies": ["TASK-041", "TASK-042"]
+}

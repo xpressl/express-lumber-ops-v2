@@ -1,0 +1,16 @@
+{
+  "id": "TASK-052",
+  "title": "Phase 10B: Purchasing module - three-way match, vendor scorecards, vendor claims",
+  "description": "Build purchasing module secondary UI: three-way match review page (PO vs Receipt vs Invoice), vendor scorecards with reliability/fill rate/cost metrics, and vendor claim workflow page.",
+  "steps": [
+    "Create src/app/(dashboard)/purchasing/match/page.tsx with three-way match review",
+    "Display side-by-side comparison: PO lines vs receiving lines vs invoice lines",
+    "Highlight discrepancies with severity indicators, allow manual resolution",
+    "Create src/components/purchasing/vendor-scorecard.tsx with vendor scorecard component",
+    "Show metrics: on-time delivery rate, fill rate, cost volatility, quality score, claim rate",
+    "Create src/app/(dashboard)/purchasing/claims/page.tsx with vendor claim workflow",
+    "Include claim creation, tracking, resolution, and credit memo management"
+  ],
+  "files": ["src/app/(dashboard)/purchasing/match/page.tsx", "src/components/purchasing/vendor-scorecard.tsx", "src/app/(dashboard)/purchasing/claims/page.tsx"],
+  "dependencies": ["TASK-051"]
+}

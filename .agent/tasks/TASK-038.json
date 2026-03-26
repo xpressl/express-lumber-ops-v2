@@ -1,0 +1,14 @@
+{
+  "id": "TASK-038",
+  "title": "Phase 6A: Yard module - prep/loading queues, damage log, cycle count, length tally",
+  "description": "Build yard module secondary UI components: order prep queue, loading queue, damage log with photo capture and notes, cycle count tool, and length tally tool for random length materials.",
+  "steps": [
+    "Create src/components/yard/prep-queue.tsx with order prep queue (mobile-first)",
+    "Create src/components/yard/loading-queue.tsx with loading queue by truck/route",
+    "Create src/components/yard/damage-log.tsx with damage logging (photo capture + notes + severity)",
+    "Create src/components/yard/cycle-count.tsx with cycle count tool (scan/enter, expected vs actual, variance)",
+    "Create src/components/yard/length-tally.tsx with length tally tool for random-length materials (board-by-board entry, total calculation)"
+  ],
+  "files": ["src/components/yard/prep-queue.tsx", "src/components/yard/loading-queue.tsx", "src/components/yard/damage-log.tsx", "src/components/yard/cycle-count.tsx", "src/components/yard/length-tally.tsx"],
+  "dependencies": ["TASK-037"]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "TASK-016",
+  "title": "Phase 2A: Database schema - business core models (Customer, Product, Vendor, Inventory)",
+  "description": "Add business core models to Prisma schema: Customer, CustomerContact, CustomerTag, CustomerJobsite, Product, ProductCategory, ProductCostHistory, Vendor, VendorPrice, VendorContact, InventoryLocationBalance, InventoryLengthBalance.",
+  "steps": [
+    "Add Customer model with credit limit, payment terms, tax status, branch assignment",
+    "Add CustomerContact, CustomerTag, CustomerJobsite related models",
+    "Add Product model with SKU, UOM, category, cost, sell price, vendor links",
+    "Add ProductCategory and ProductCostHistory models",
+    "Add Vendor model with payment terms, lead times, reliability metrics",
+    "Add VendorPrice and VendorContact models",
+    "Add InventoryLocationBalance and InventoryLengthBalance models",
+    "Define all required enums (CustomerStatus, ProductUOM, VendorStatus, etc.)",
+    "Validate schema with prisma validate"
+  ],
+  "files": ["prisma/schema.prisma"],
+  "dependencies": ["TASK-009"]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "TASK-020",
+  "title": "Phase 2C: Order state machine definition and tests",
+  "description": "Define the order state machine with valid transitions, guard conditions, and side effects. Write comprehensive tests for all transitions.",
+  "steps": [
+    "Create src/lib/state-machines/order.ts with state machine definition",
+    "Define all states: DRAFT, SUBMITTED, CONFIRMED, PICKING, PICKED, LOADING, LOADED, IN_TRANSIT, DELIVERED, PARTIAL_DELIVERY, REFUSED, COMPLETED, CANCELLED, ON_HOLD",
+    "Define valid transitions with guard conditions (e.g., can't confirm without credit check, can't load without pick completion)",
+    "Define side effects per transition (audit events, notifications, exception triggers)",
+    "Create src/lib/state-machines/__tests__/order.test.ts",
+    "Test all valid transitions succeed",
+    "Test all invalid transitions throw",
+    "Test guard conditions block transitions when not met",
+    "Test side effects fire on successful transitions"
+  ],
+  "files": ["src/lib/state-machines/order.ts", "src/lib/state-machines/__tests__/order.test.ts"],
+  "dependencies": ["TASK-018"]
+}

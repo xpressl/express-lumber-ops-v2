@@ -1,0 +1,18 @@
+{
+  "id": "TASK-035",
+  "title": "Phase 5A: Dispatch module - UI (order board, truck planner, route map, checklist, carryover)",
+  "description": "Build dispatch UI: order board page (filterable DataTable + Kanban hybrid), truck planner with drag-and-drop and capacity visualization, route map with Leaflet, dispatch checklist dialog, delayed order carryover queue, dispatch log, and truck capacity visualizer.",
+  "steps": [
+    "Create src/app/(dashboard)/dispatch/page.tsx with order board (DataTable + Kanban hybrid view)",
+    "Implement filters: status, delivery type, branch, date, priority, has-exceptions",
+    "Create src/components/dispatch/truck-planner.tsx with drag-and-drop stop assignment",
+    "Include capacity visualization bars (weight, pieces, bundles, length)",
+    "Create src/components/dispatch/route-map.tsx with Leaflet map, stop markers, route polyline, zone overlays",
+    "Create src/components/dispatch/dispatch-checklist.tsx with pre-dispatch checklist dialog",
+    "Create src/components/dispatch/carryover-queue.tsx with delayed order carryover management",
+    "Create src/app/(dashboard)/dispatch/log/page.tsx with dispatch log history",
+    "Create src/components/dispatch/capacity-bar.tsx with truck capacity visualizer"
+  ],
+  "files": ["src/app/(dashboard)/dispatch/page.tsx", "src/components/dispatch/truck-planner.tsx", "src/components/dispatch/route-map.tsx", "src/components/dispatch/dispatch-checklist.tsx", "src/components/dispatch/carryover-queue.tsx", "src/app/(dashboard)/dispatch/log/page.tsx", "src/components/dispatch/capacity-bar.tsx"],
+  "dependencies": ["TASK-034"]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "TASK-048",
+  "title": "Phase 9: CRM UI - leads pipeline, estimate builder, follow-ups, dormant, cross-sell",
+  "description": "Build CRM UI: enhanced customer 360 page, leads pipeline Kanban board, estimate builder with line items and margin preview, follow-up queue, dormant account list, cross-sell opportunities page, and sales activity log.",
+  "steps": [
+    "Enhance src/app/(dashboard)/customers/[id]/page.tsx with full 360 operational history view",
+    "Create src/app/(dashboard)/crm/page.tsx with leads pipeline Kanban board",
+    "Implement pipeline stages: NEW, CONTACTED, ESTIMATE_SENT, FOLLOW_UP, NEGOTIATION, WON, LOST",
+    "Create src/app/(dashboard)/crm/estimates/[id]/page.tsx with estimate builder",
+    "Include line items editor, margin preview, PDF generation, send to customer",
+    "Create src/app/(dashboard)/crm/follow-ups/page.tsx with follow-up queue",
+    "Create src/app/(dashboard)/crm/dormant/page.tsx with dormant account list",
+    "Create src/app/(dashboard)/crm/cross-sell/page.tsx with cross-sell opportunity suggestions",
+    "Create src/components/crm/activity-log.tsx with sales activity log component"
+  ],
+  "files": ["src/app/(dashboard)/customers/[id]/page.tsx", "src/app/(dashboard)/crm/page.tsx", "src/app/(dashboard)/crm/estimates/[id]/page.tsx", "src/app/(dashboard)/crm/follow-ups/page.tsx", "src/app/(dashboard)/crm/dormant/page.tsx", "src/app/(dashboard)/crm/cross-sell/page.tsx", "src/components/crm/activity-log.tsx"],
+  "dependencies": ["TASK-047"]
+}

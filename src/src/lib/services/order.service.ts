@@ -153,6 +153,7 @@ export async function listOrders(params: {
   limit?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  scopeFilter?: Record<string, unknown>;
 }) {
   const page = params.page ?? 1;
   const limit = params.limit ?? 20;
@@ -160,6 +161,8 @@ export async function listOrders(params: {
 
   const where: Prisma.OrderWhereInput = {
     deletedAt: null,
+    // Apply RBAC scope filter (branch/own/assigned restrictions)
+    ...params.scopeFilter,
     ...(params.search ? {
       OR: [
         { orderNumber: { contains: params.search, mode: "insensitive" as const } },
@@ -224,12 +227,16 @@ async function recalculateOrderTotals(orderId: string) {
   });
 }
 
-/** Generate sequential order number */
+/** Generate sequential order number with collision retry */
 async function generateOrderNumber(): Promise<string> {
   const today = new Date();
   const prefix = `ORD-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}`;
-  const count = await prisma.order.count({
-    where: { orderNumber: { startsWith: prefix } },
-  });
-  return `${prefix}-${String(count + 1).padStart(4, "0")}`;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const count = await prisma.order.count({ where: { orderNumber: { startsWith: prefix } } });
+    const candidate = `${prefix}-${String(count + 1 + attempt).padStart(4, "0")}`;
+    const exists = await prisma.order.findFirst({ where: { orderNumber: candidate } });
+    if (!exists) return candidate;
+  }
+  // Fallback: use timestamp suffix to guarantee uniqueness
+  return `${prefix}-${Date.now().toString(36).toUpperCase()}`;
 }

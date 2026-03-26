@@ -1,0 +1,18 @@
+{
+  "id": "TASK-043",
+  "title": "Phase 7B: Driver UI - layout, route page, stop page, POD/COD capture",
+  "description": "Build the driver-facing mobile UI: driver layout with bottom nav, today's route page with stop list and map, current stop page with delivery details, POD capture (signature + photos + GPS), COD capture, stop outcome selector, return-to-yard flow, issue escalation, and route summary/end-of-day closeout.",
+  "steps": [
+    "Create src/app/(driver)/layout.tsx with driver-specific layout (bottom nav, minimal chrome)",
+    "Create src/app/(driver)/route/page.tsx with today's route (stop list + inline map)",
+    "Create src/app/(driver)/stop/[id]/page.tsx with current stop details (products, notes, contact, gate code, delivery instructions)",
+    "Create src/components/driver/pod-capture.tsx with POD capture (signature pad, multi-photo, notes, GPS stamp, timestamp)",
+    "Create src/components/driver/cod-capture.tsx with COD capture (amount due, payment type, collected amount, shortage reason)",
+    "Create src/components/driver/stop-outcome.tsx with stop outcome selector (delivered, partial, refused, no answer, etc.)",
+    "Create src/components/driver/return-flow.tsx with return-to-yard flow (returns inventory, reason)",
+    "Create src/components/driver/issue-escalation.tsx with stop issue escalation to dispatch",
+    "Create src/app/(driver)/summary/page.tsx with route summary and end-of-day closeout"
+  ],
+  "files": ["src/app/(driver)/layout.tsx", "src/app/(driver)/route/page.tsx", "src/app/(driver)/stop/[id]/page.tsx", "src/components/driver/pod-capture.tsx", "src/components/driver/cod-capture.tsx", "src/components/driver/stop-outcome.tsx", "src/components/driver/return-flow.tsx", "src/components/driver/issue-escalation.tsx", "src/app/(driver)/summary/page.tsx"],
+  "dependencies": ["TASK-041", "TASK-042"]
+}

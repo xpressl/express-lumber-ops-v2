@@ -1,0 +1,16 @@
+{
+  "id": "TASK-041",
+  "title": "Phase 7A: Driver PWA infrastructure - service worker, manifest, offline sync",
+  "description": "Build PWA infrastructure for the driver app: service worker for offline support with caching strategies, PWA manifest for installability, and offline data sync service for queuing and replaying mutations.",
+  "steps": [
+    "Create public/sw.js with service worker implementing cache-first for assets, network-first for API",
+    "Implement offline queue for mutations (POD capture, stop completion, etc.)",
+    "Handle background sync when connection restored",
+    "Create public/manifest.json with PWA manifest (name, icons, theme color, display: standalone)",
+    "Create src/lib/services/offline-sync.ts with offline data sync service",
+    "Implement IndexedDB storage for offline data (route, stops, customer info)",
+    "Implement mutation queue with retry logic and conflict resolution"
+  ],
+  "files": ["public/sw.js", "public/manifest.json", "src/lib/services/offline-sync.ts"],
+  "dependencies": ["TASK-034"]
+}

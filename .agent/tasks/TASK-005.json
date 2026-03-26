@@ -1,0 +1,17 @@
+{
+  "id": "TASK-005",
+  "title": "Phase 1A: Project scaffolding and dependency installation",
+  "description": "Initialize Next.js 14+ with App Router and TypeScript strict mode. Install all project dependencies including Prisma, NextAuth, Socket.io, Zod, react-hook-form, Recharts, Leaflet, Twilio, Resend, jsPDF, and more.",
+  "steps": [
+    "Initialize Next.js 14+ project with App Router and TypeScript strict",
+    "Configure tsconfig.json with strict mode, path aliases, and required compiler options",
+    "Configure next.config.ts with required settings",
+    "Install core dependencies: prisma, @prisma/client, next-auth, socket.io, socket.io-client",
+    "Install form/validation: zod, react-hook-form, @hookform/resolvers",
+    "Install UI: recharts, leaflet, react-leaflet, @react-pdf/renderer, jspdf",
+    "Install services: @aws-sdk/client-s3, twilio, resend, ioredis",
+    "Install dev dependencies: @types/*, eslint, prettier"
+  ],
+  "files": ["package.json", "tsconfig.json", "next.config.ts"],
+  "dependencies": ["TASK-001"]
+}

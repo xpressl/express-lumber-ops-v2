@@ -1,0 +1,16 @@
+{
+  "id": "TASK-037",
+  "title": "Phase 6A: Yard module - service, API, task pages, workload board, bay status",
+  "description": "Build yard module backend and primary UI: yard service with task queue, assignment, completion, and bay status management; API routes; mobile-first my-tasks page; manager workload board; and bay status board.",
+  "steps": [
+    "Create src/lib/services/yard.service.ts with task queue management, assignment, completion, bay status tracking",
+    "Create src/app/api/yard/tasks/route.ts with GET (queue) and POST (create task)",
+    "Create src/app/api/yard/tasks/[id]/route.ts with GET, PUT (assign, start, complete)",
+    "Create src/app/api/yard/bays/route.ts with bay status management",
+    "Create src/app/(dashboard)/yard/page.tsx with mobile-first my-tasks page (swipe actions)",
+    "Create src/app/(dashboard)/yard/workload/page.tsx with manager workload board (desktop view)",
+    "Create src/components/yard/bay-status.tsx with bay status board visualization"
+  ],
+  "files": ["src/lib/services/yard.service.ts", "src/app/api/yard/tasks/route.ts", "src/app/api/yard/tasks/[id]/route.ts", "src/app/api/yard/bays/route.ts", "src/app/(dashboard)/yard/page.tsx", "src/app/(dashboard)/yard/workload/page.tsx", "src/components/yard/bay-status.tsx"],
+  "dependencies": ["TASK-031"]
+}

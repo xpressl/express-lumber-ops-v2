@@ -1,0 +1,16 @@
+{
+  "id": "TASK-034",
+  "title": "Phase 5A: Dispatch module - services (dispatch, route, truck) and API routes",
+  "description": "Build dispatch backend: dispatch service (assign truck, sequence stops, capacity calc, checklist validation), route service (create, optimize, profitability score), truck service (availability, capacity rules), all API routes, and Socket.io events for real-time updates.",
+  "steps": [
+    "Create src/lib/services/dispatch.service.ts with order-to-truck assignment, stop sequencing, capacity calculation, dispatch checklist validation",
+    "Create src/lib/services/route.service.ts with route creation, sequence optimization, profitability scoring",
+    "Create src/lib/services/truck.service.ts with availability tracking, capacity rules (weight, pieces, bundles, length)",
+    "Create src/app/api/dispatch/route.ts with dispatch operations",
+    "Create src/app/api/dispatch/trucks/route.ts with truck management",
+    "Create src/app/api/dispatch/routes/route.ts and [id]/route.ts with route CRUD",
+    "Create src/lib/socket-events/dispatch.ts with real-time events (order-assigned, route-updated, truck-status-changed, stop-status-changed)"
+  ],
+  "files": ["src/lib/services/dispatch.service.ts", "src/lib/services/route.service.ts", "src/lib/services/truck.service.ts", "src/app/api/dispatch/route.ts", "src/app/api/dispatch/trucks/route.ts", "src/app/api/dispatch/routes/route.ts", "src/app/api/dispatch/routes/[id]/route.ts", "src/lib/socket-events/dispatch.ts"],
+  "dependencies": ["TASK-031"]
+}

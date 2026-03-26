@@ -1,0 +1,16 @@
+{
+  "id": "TASK-013",
+  "title": "Phase 1E: Shared UI - DataTable, StatusBadge, Timeline",
+  "description": "Build the core shared UI components: DataTable with sorting, filtering, search, column preferences, pagination, and branch scope awareness; StatusBadge with color-coding by status enum; Timeline for audit event display.",
+  "steps": [
+    "Create src/components/shared/data-table.tsx with full-featured DataTable component",
+    "Implement column sorting, multi-filter, global search, column visibility preferences",
+    "Implement server-side pagination with cursor support",
+    "Add branch scope awareness (filter by user's branch access)",
+    "Create src/components/shared/status-badge.tsx with color-coded badges by status enum",
+    "Create src/components/shared/timeline.tsx for append-only audit event display",
+    "Style all components with industrial-utilitarian aesthetic (dark mode primary)"
+  ],
+  "files": ["src/components/shared/data-table.tsx", "src/components/shared/status-badge.tsx", "src/components/shared/timeline.tsx"],
+  "dependencies": ["TASK-006"]
+}

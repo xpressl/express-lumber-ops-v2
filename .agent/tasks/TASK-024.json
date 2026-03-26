@@ -1,0 +1,18 @@
+{
+  "id": "TASK-024",
+  "title": "Phase 3C: Admin - user management (list, detail, create, API, service)",
+  "description": "Build the user management module: user list page with DataTable, user detail/edit page with profile/roles/permissions, create user dialog, user API routes (CRUD + role assignment), and user service.",
+  "steps": [
+    "Create src/lib/services/user.service.ts with user CRUD, search, role assignment, status management",
+    "Create src/app/api/users/route.ts with GET (list) and POST (create) endpoints",
+    "Create src/app/api/users/[id]/route.ts with GET, PUT, DELETE endpoints",
+    "Create src/app/api/users/[id]/roles/route.ts with role assignment endpoints",
+    "Create src/app/(dashboard)/admin/users/page.tsx with user list DataTable",
+    "Implement search, filter by role/branch/status, bulk actions",
+    "Create src/app/(dashboard)/admin/users/[id]/page.tsx with user detail/edit page",
+    "Include tabs: Profile, Roles & Permissions, Preferences, Audit Log",
+    "Create src/components/admin/create-user-dialog.tsx with user creation form"
+  ],
+  "files": ["src/lib/services/user.service.ts", "src/app/api/users/route.ts", "src/app/api/users/[id]/route.ts", "src/app/api/users/[id]/roles/route.ts", "src/app/(dashboard)/admin/users/page.tsx", "src/app/(dashboard)/admin/users/[id]/page.tsx", "src/components/admin/create-user-dialog.tsx"],
+  "dependencies": ["TASK-023"]
+}

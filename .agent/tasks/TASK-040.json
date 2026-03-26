@@ -1,0 +1,15 @@
+{
+  "id": "TASK-040",
+  "title": "Phase 6B: Receiving module - photo capture, vendor issue, AP hold bridge",
+  "description": "Build receiving module secondary components: photo capture during receiving, vendor issue creation flow, and receiving-to-AP hold workflow bridge.",
+  "steps": [
+    "Create src/components/receiving/photo-capture.tsx with camera integration for receiving photos",
+    "Support multi-photo capture, annotation, and S3 upload",
+    "Create src/components/receiving/vendor-issue-form.tsx with vendor issue creation flow",
+    "Include issue type (short, damage, wrong product, quality), photo attachment, and claim initiation",
+    "Create src/lib/services/receiving-ap-bridge.ts with receiving-to-AP hold workflow",
+    "Implement automatic AP hold when receiving discrepancies exceed threshold"
+  ],
+  "files": ["src/components/receiving/photo-capture.tsx", "src/components/receiving/vendor-issue-form.tsx", "src/lib/services/receiving-ap-bridge.ts"],
+  "dependencies": ["TASK-039"]
+}

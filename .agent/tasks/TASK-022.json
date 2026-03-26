@@ -1,0 +1,19 @@
+{
+  "id": "TASK-022",
+  "title": "Phase 3A: Auth flows - login, forgot password, NextAuth config, guards",
+  "description": "Build complete auth flow: branded login page, forgot password flow, NextAuth configuration with JWT and session callbacks, auth guard hooks, and session provider wrapper.",
+  "steps": [
+    "Create src/app/(auth)/login/page.tsx with branded login page",
+    "Create src/components/auth/login-form.tsx with email/password form using react-hook-form + Zod",
+    "Create src/app/(auth)/forgot-password/page.tsx with forgot password flow",
+    "Create src/app/api/auth/forgot-password/route.ts API endpoint",
+    "Configure src/lib/auth/options.ts with JWT strategy, credentials provider, session callbacks",
+    "Create src/app/api/auth/[...nextauth]/route.ts",
+    "Create src/hooks/use-auth.ts with useAuth hook (session, user, loading state)",
+    "Create src/hooks/use-permissions.ts with usePermissions hook (can, canAny, canAll helpers)",
+    "Create src/components/providers/session-provider.tsx wrapper component",
+    "Create src/app/middleware.ts for auth redirect (unauthenticated -> login)"
+  ],
+  "files": ["src/app/(auth)/login/page.tsx", "src/components/auth/login-form.tsx", "src/app/(auth)/forgot-password/page.tsx", "src/app/api/auth/forgot-password/route.ts", "src/lib/auth/options.ts", "src/app/api/auth/[...nextauth]/route.ts", "src/hooks/use-auth.ts", "src/hooks/use-permissions.ts", "src/components/providers/session-provider.tsx", "src/app/middleware.ts"],
+  "dependencies": ["TASK-010", "TASK-012"]
+}

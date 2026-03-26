@@ -1,0 +1,19 @@
+{
+  "id": "TASK-029",
+  "title": "Phase 4A: Customer module - service, API, directory, detail, forms",
+  "description": "Build the complete customer module: customer service with CRUD/search/credit check, API routes, customer directory page with DataTable, customer 360 detail page with tabbed layout, create/edit dialog, and contacts sub-component.",
+  "steps": [
+    "Create src/lib/services/customer.service.ts with CRUD, search, credit check, tag management",
+    "Create src/app/api/customers/route.ts with GET (list/search) and POST (create)",
+    "Create src/app/api/customers/[id]/route.ts with GET, PUT, DELETE",
+    "Create src/app/api/customers/[id]/contacts/route.ts with contact CRUD",
+    "Create src/app/(dashboard)/customers/page.tsx with customer directory DataTable",
+    "Implement filters: status, branch, sales rep, tags, credit hold status",
+    "Create src/app/(dashboard)/customers/[id]/page.tsx with 360 detail page",
+    "Include tabs: Profile, Orders, Deliveries, Billing, Collections, Pricing, Sales, Communications",
+    "Create src/components/customers/customer-form.tsx with create/edit customer dialog",
+    "Create src/components/customers/contacts-panel.tsx with contacts list and management"
+  ],
+  "files": ["src/lib/services/customer.service.ts", "src/app/api/customers/route.ts", "src/app/api/customers/[id]/route.ts", "src/app/api/customers/[id]/contacts/route.ts", "src/app/(dashboard)/customers/page.tsx", "src/app/(dashboard)/customers/[id]/page.tsx", "src/components/customers/customer-form.tsx", "src/components/customers/contacts-panel.tsx"],
+  "dependencies": ["TASK-019", "TASK-021", "TASK-023"]
+}

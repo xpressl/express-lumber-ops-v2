@@ -1,0 +1,17 @@
+{
+  "id": "TASK-056",
+  "title": "Phase 12B: Command center - page, today overview, exceptions, department health",
+  "description": "Build the command center: main page, today overview panel with live KPIs, top exceptions panel, department health blocks, quick actions panel, live activity feed via Socket.io, shift handoff summary, and SLA monitor.",
+  "steps": [
+    "Create src/app/(dashboard)/command-center/page.tsx with command center layout",
+    "Create src/components/command-center/today-overview.tsx with live KPIs (order counts, truck counts, pickup queue, delayed stops, COD due)",
+    "Create src/components/command-center/top-exceptions.tsx with top exceptions panel sorted by severity/SLA",
+    "Create src/components/command-center/department-health.tsx with health blocks for dispatch, yard, delivery, collections, purchasing, pricing",
+    "Create src/components/command-center/quick-actions.tsx with quick action buttons (create order, dispatch truck, etc.)",
+    "Create src/components/command-center/activity-feed.tsx with live activity feed via Socket.io",
+    "Create src/components/command-center/shift-handoff.tsx with shift handoff summary generator",
+    "Create src/components/command-center/sla-monitor.tsx with SLA compliance monitor"
+  ],
+  "files": ["src/app/(dashboard)/command-center/page.tsx", "src/components/command-center/today-overview.tsx", "src/components/command-center/top-exceptions.tsx", "src/components/command-center/department-health.tsx", "src/components/command-center/quick-actions.tsx", "src/components/command-center/activity-feed.tsx", "src/components/command-center/shift-handoff.tsx", "src/components/command-center/sla-monitor.tsx"],
+  "dependencies": ["TASK-055"]
+}

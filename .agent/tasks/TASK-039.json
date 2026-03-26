@@ -1,0 +1,17 @@
+{
+  "id": "TASK-039",
+  "title": "Phase 6B: Receiving module - service, API, receiving workflow, discrepancy review",
+  "description": "Build receiving module: receiving service with PO receive, line-by-line processing, discrepancy handling, and vendor issue creation; API routes; expected receipts calendar page; PO receiving workflow page; and discrepancy review queue.",
+  "steps": [
+    "Create src/lib/services/receiving.service.ts with PO receiving (line-by-line: receive, short, over, damaged, substitute, reject)",
+    "Implement discrepancy detection and vendor issue creation",
+    "Create src/app/api/receiving/route.ts with GET (list) and POST (create receiving record)",
+    "Create src/app/api/receiving/[id]/route.ts with GET, PUT (status update)",
+    "Create src/app/api/receiving/[id]/lines/route.ts with receiving line management",
+    "Create src/app/(dashboard)/receiving/page.tsx with expected receipts calendar view",
+    "Create src/app/(dashboard)/receiving/[id]/page.tsx with PO receiving workflow (mobile-first, line-by-line)",
+    "Create src/app/(dashboard)/receiving/discrepancies/page.tsx with discrepancy review queue"
+  ],
+  "files": ["src/lib/services/receiving.service.ts", "src/app/api/receiving/route.ts", "src/app/api/receiving/[id]/route.ts", "src/app/api/receiving/[id]/lines/route.ts", "src/app/(dashboard)/receiving/page.tsx", "src/app/(dashboard)/receiving/[id]/page.tsx", "src/app/(dashboard)/receiving/discrepancies/page.tsx"],
+  "dependencies": ["TASK-031"]
+}

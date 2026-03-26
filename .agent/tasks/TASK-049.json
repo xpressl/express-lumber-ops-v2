@@ -1,0 +1,19 @@
+{
+  "id": "TASK-049",
+  "title": "Phase 10A: Pricing module - service, API, import workflow, cost change center",
+  "description": "Build pricing module backend and primary UI: pricing service with import, cost change detection, margin calculation, and quote exposure analysis; API routes; vendor price import workflow page; and cost change center page.",
+  "steps": [
+    "Create src/lib/services/pricing.service.ts with vendor price import processing",
+    "Implement cost change detection (compare new vs current prices)",
+    "Implement margin calculation and impact analysis across open quotes",
+    "Create src/app/api/pricing/route.ts with pricing operations",
+    "Create src/app/api/pricing/imports/route.ts with price import management",
+    "Create src/app/api/pricing/cost-changes/route.ts with cost change queries",
+    "Create src/app/(dashboard)/pricing/import/page.tsx with vendor price import workflow",
+    "Include CSV/XLSX upload, field mapping, preview diff, approve/reject",
+    "Create src/app/(dashboard)/pricing/cost-changes/page.tsx with cost change center DataTable",
+    "Display severity levels: LOSS, CRITICAL, WARNING, OK with color coding"
+  ],
+  "files": ["src/lib/services/pricing.service.ts", "src/app/api/pricing/route.ts", "src/app/api/pricing/imports/route.ts", "src/app/api/pricing/cost-changes/route.ts", "src/app/(dashboard)/pricing/import/page.tsx", "src/app/(dashboard)/pricing/cost-changes/page.tsx"],
+  "dependencies": ["TASK-030"]
+}

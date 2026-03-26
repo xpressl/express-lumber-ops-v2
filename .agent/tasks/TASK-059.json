@@ -1,0 +1,17 @@
+{
+  "id": "TASK-059",
+  "title": "Phase 13: Unit and integration tests for services and API routes",
+  "description": "Write comprehensive unit tests for all service layers and integration tests for all API routes. Verify audit event emission for every auditable action.",
+  "steps": [
+    "Write unit tests for all service files in src/lib/services/",
+    "Cover: user, role, customer, product, order, dispatch, route, truck, pickup, yard, receiving, delivery, collections, credit, crm, estimate, pricing, purchasing, search, report, daily-close services",
+    "Write unit tests for all engine files: permissions/evaluate, feature-flags/evaluate, approvals/engine, exceptions/engine",
+    "Write integration tests for all API routes",
+    "Test auth/RBAC middleware on protected routes",
+    "Test pagination, filtering, and error handling on list endpoints",
+    "Verify audit events are created for every auditable action",
+    "Verify security events are created for auth-related actions"
+  ],
+  "files": ["src/lib/services/__tests__/", "src/lib/permissions/__tests__/", "src/lib/feature-flags/__tests__/", "src/lib/approvals/__tests__/", "src/lib/exceptions/__tests__/", "src/app/api/**/__tests__/"],
+  "dependencies": ["TASK-058"]
+}

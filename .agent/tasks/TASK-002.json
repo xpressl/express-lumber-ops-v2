@@ -1,0 +1,14 @@
+{
+  "id": "TASK-002",
+  "title": "Phase 0: Data model and API specs documentation",
+  "description": "Create comprehensive DATA-MODEL.md documenting all entities, fields, relationships, and lifecycle states. Create API-SPECS.md documenting all route groups, request/response shapes, auth requirements, and side effects.",
+  "steps": [
+    "Write docs/DATA-MODEL.md with all entities from PRD (platform core + business models)",
+    "Document all fields, types, constraints, and relationships",
+    "Document entity lifecycle states and valid transitions",
+    "Write docs/API-SPECS.md with all route groups organized by module",
+    "Document request/response shapes, auth requirements, rate limits, and side effects for each route"
+  ],
+  "files": ["docs/DATA-MODEL.md", "docs/API-SPECS.md"],
+  "dependencies": []
+}

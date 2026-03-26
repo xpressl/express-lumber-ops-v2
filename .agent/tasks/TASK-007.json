@@ -1,0 +1,14 @@
+{
+  "id": "TASK-007",
+  "title": "Phase 1A: Prisma, Redis, Socket.io singletons and root layout",
+  "description": "Create singleton instances for Prisma client, Redis client, and Socket.io server. Create the root layout with font loading and theme support.",
+  "steps": [
+    "Create src/lib/prisma.ts with Prisma client singleton (dev hot-reload safe)",
+    "Create src/lib/redis.ts with Redis/ioredis client singleton",
+    "Create src/lib/socket.ts with Socket.io server setup and event namespace configuration",
+    "Create src/app/layout.tsx with root layout, font loading (JetBrains Mono + Instrument Sans), metadata",
+    "Set up dark mode as primary theme with light mode toggle support"
+  ],
+  "files": ["src/lib/prisma.ts", "src/lib/redis.ts", "src/lib/socket.ts", "src/app/layout.tsx"],
+  "dependencies": ["TASK-005"]
+}

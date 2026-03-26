@@ -1,0 +1,15 @@
+{
+  "id": "TASK-014",
+  "title": "Phase 1E: Shared UI - ExceptionCard, ApprovalDialog, ConfirmDialog, PageHeader",
+  "description": "Build shared UI: ExceptionBadge + ExceptionCard for displaying exception details; ApprovalDialog for request/approve/deny flows with reason input; ConfirmDialog for destructive action confirmation; PageHeader with title, breadcrumbs, and action buttons.",
+  "steps": [
+    "Create src/components/shared/exception-card.tsx with ExceptionBadge and ExceptionCard",
+    "Display severity, category, owner, SLA countdown, resolution status",
+    "Create src/components/shared/approval-dialog.tsx with approval request and response flows",
+    "Include approve/deny buttons, reason textarea, approval chain status display",
+    "Create src/components/shared/confirm-dialog.tsx for destructive action confirmation",
+    "Create src/components/shared/page-header.tsx with title, breadcrumb navigation, action slot"
+  ],
+  "files": ["src/components/shared/exception-card.tsx", "src/components/shared/approval-dialog.tsx", "src/components/shared/confirm-dialog.tsx", "src/components/shared/page-header.tsx"],
+  "dependencies": ["TASK-006"]
+}

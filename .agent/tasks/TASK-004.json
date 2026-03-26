@@ -1,0 +1,13 @@
+{
+  "id": "TASK-004",
+  "title": "Phase 0: Rollout plan, test strategy, and exception model docs",
+  "description": "Create ROLLOUT-PLAN.md with phased deployment strategy. Create TEST-STRATEGY.md with testing approach per layer. Create EXCEPTION-MODEL.md with exception categories, severity levels, queues, and SLAs.",
+  "steps": [
+    "Write docs/ROLLOUT-PLAN.md with phased rollout strategy (branch-by-branch, module-by-module)",
+    "Write docs/TEST-STRATEGY.md with testing pyramid (unit, integration, e2e, workflow tests)",
+    "Write docs/EXCEPTION-MODEL.md with exception categories by module",
+    "Define severity levels, escalation paths, SLA timers, and auto-assignment rules"
+  ],
+  "files": ["docs/ROLLOUT-PLAN.md", "docs/TEST-STRATEGY.md", "docs/EXCEPTION-MODEL.md"],
+  "dependencies": []
+}

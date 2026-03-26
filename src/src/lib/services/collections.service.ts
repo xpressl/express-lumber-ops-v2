@@ -68,6 +68,12 @@ export async function logCall(accountId: string, input: {
     },
   });
 
+  await createAuditEvent({
+    actorId, actorName: actorId, action: "collections.call_logged",
+    entityType: "CollectionActivity", entityId: activity.id,
+    metadata: { outcome: input.outcome, type: input.type } as Record<string, unknown>,
+  });
+
   await prisma.collectionAccount.update({
     where: { id: accountId },
     data: {
@@ -107,7 +113,7 @@ export async function createPromise(accountId: string, customerId: string, input
 export async function createDispute(accountId: string, customerId: string, input: {
   invoiceId?: string; amount: number; reason: string; notes?: string;
 }, actorId: string) {
-  return prisma.dispute.create({
+  const dispute = await prisma.dispute.create({
     data: {
       accountId,
       customerId,
@@ -118,6 +124,14 @@ export async function createDispute(accountId: string, customerId: string, input
       createdBy: actorId,
     },
   });
+
+  await createAuditEvent({
+    actorId, actorName: actorId, action: "collections.dispute_opened",
+    entityType: "Dispute", entityId: dispute.id,
+    metadata: { amount: input.amount, reason: input.reason } as Record<string, unknown>,
+  });
+
+  return dispute;
 }
 
 /** Recommend credit hold */

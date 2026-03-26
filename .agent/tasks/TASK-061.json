@@ -1,0 +1,19 @@
+{
+  "id": "TASK-061",
+  "title": "Phase 13: Performance optimization, security audit, seed data finalization",
+  "description": "Final hardening: performance optimization (query analysis, database indexing, lazy loading, image optimization), security audit (OWASP top 10, RBAC bypass testing, sensitive data exposure), and seed data finalization with realistic building supply data across all modules.",
+  "steps": [
+    "Analyze database queries and add missing indexes for common access patterns",
+    "Implement lazy loading for heavy components (maps, charts, large tables)",
+    "Optimize image loading (next/image, responsive sizes, WebP)",
+    "Add database connection pooling configuration",
+    "Audit for OWASP Top 10 vulnerabilities (injection, XSS, CSRF, etc.)",
+    "Test RBAC bypass scenarios (direct URL access, API tampering, scope escalation)",
+    "Check for sensitive data exposure in API responses (passwords, tokens, internal IDs)",
+    "Verify rate limiting on all public endpoints",
+    "Finalize seed data with realistic building supply data across ALL modules",
+    "Include sample data for: customers, products, orders, trucks, routes, deliveries, receiving, collections, CRM, pricing, purchasing, imports"
+  ],
+  "files": ["prisma/schema.prisma", "prisma/seed.ts", "next.config.ts", "src/lib/middleware/"],
+  "dependencies": ["TASK-060"]
+}

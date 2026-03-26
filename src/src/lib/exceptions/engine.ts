@@ -172,9 +172,11 @@ function calculatePriorityScore(severity: ExceptionSeverity, slaTargetAt: Date):
   const severityWeights = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
   const severityScore = (severityWeights[severity] ?? 1) * 40;
   const now = Date.now();
-  const slaMs = slaTargetAt.getTime() - now;
-  const totalSlaMs = slaTargetAt.getTime() - now;
-  const slaUrgency = totalSlaMs > 0 ? Math.max(0, 1 - slaMs / totalSlaMs) : 1;
+  const remainingMs = slaTargetAt.getTime() - now;
+  // Use the category's SLA window as the total (estimate from severity)
+  const totalWindowMs = { CRITICAL: 1, HIGH: 4, MEDIUM: 8, LOW: 24 }[severity] * 60 * 60 * 1000;
+  const elapsed = totalWindowMs - remainingMs;
+  const slaUrgency = remainingMs <= 0 ? 1 : Math.max(0, Math.min(1, elapsed / totalWindowMs));
   const slaScore = slaUrgency * 30;
   return Math.round(severityScore + slaScore);
 }

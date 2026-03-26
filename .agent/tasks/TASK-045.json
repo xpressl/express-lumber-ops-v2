@@ -1,0 +1,19 @@
+{
+  "id": "TASK-045",
+  "title": "Phase 8A: Collections backend - collections service, credit service, API routes",
+  "description": "Build collections backend: collections service with aging calculation, account assignment, promise tracking, dispute management, and escalation; credit service with hold recommendation engine and hold/release workflow; and all collections API routes.",
+  "steps": [
+    "Create src/lib/services/collections.service.ts with aging bucket calculation (current, 30, 60, 90, 120+)",
+    "Implement account assignment to collectors, call logging, promise-to-pay tracking",
+    "Implement dispute management lifecycle and escalation rules",
+    "Create src/lib/services/credit.service.ts with credit hold recommendation engine",
+    "Implement hold/release workflow with approval integration",
+    "Create src/app/api/collections/route.ts with collections overview and account list",
+    "Create src/app/api/collections/accounts/[id]/route.ts with account detail",
+    "Create src/app/api/collections/accounts/[id]/calls/route.ts with call logging",
+    "Create src/app/api/collections/accounts/[id]/promises/route.ts with promise tracking",
+    "Create src/app/api/collections/accounts/[id]/disputes/route.ts with dispute management"
+  ],
+  "files": ["src/lib/services/collections.service.ts", "src/lib/services/credit.service.ts", "src/app/api/collections/route.ts", "src/app/api/collections/accounts/[id]/route.ts", "src/app/api/collections/accounts/[id]/calls/route.ts", "src/app/api/collections/accounts/[id]/promises/route.ts", "src/app/api/collections/accounts/[id]/disputes/route.ts"],
+  "dependencies": ["TASK-029"]
+}

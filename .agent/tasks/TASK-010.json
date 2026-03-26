@@ -1,0 +1,16 @@
+{
+  "id": "TASK-010",
+  "title": "Phase 1C: Auth, permission, and feature flag services",
+  "description": "Build the auth service (session management, token handling, login/logout), permission evaluation service (check user permissions with scope awareness), and feature flag evaluation service (evaluate flags by company/branch/role/user).",
+  "steps": [
+    "Create src/lib/auth/options.ts with NextAuth configuration (JWT strategy, credentials provider, session callbacks)",
+    "Create src/lib/auth/helpers.ts with session helpers (getCurrentUser, requireAuth, requireRole)",
+    "Create src/lib/permissions/evaluate.ts with permission evaluation engine",
+    "Implement scope-aware permission checks (company-wide, branch-scoped, own-records-only)",
+    "Create src/lib/feature-flags/evaluate.ts with feature flag evaluation",
+    "Implement flag resolution hierarchy: user > role > branch > company > default",
+    "Add caching layer for permission and flag lookups via Redis"
+  ],
+  "files": ["src/lib/auth/options.ts", "src/lib/auth/helpers.ts", "src/lib/permissions/evaluate.ts", "src/lib/feature-flags/evaluate.ts"],
+  "dependencies": ["TASK-009"]
+}

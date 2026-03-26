@@ -1,0 +1,16 @@
+{
+  "id": "TASK-030",
+  "title": "Phase 4B: Product module - service, API, catalogue, detail",
+  "description": "Build the product module: product service, API routes, product catalogue page showing cost/sell/margin/vendor/inventory, and product detail page.",
+  "steps": [
+    "Create src/lib/services/product.service.ts with CRUD, search, inventory lookup, cost history",
+    "Create src/app/api/products/route.ts with GET (list/search) and POST (create)",
+    "Create src/app/api/products/[id]/route.ts with GET, PUT, DELETE",
+    "Create src/app/(dashboard)/products/page.tsx with product catalogue DataTable",
+    "Show columns: SKU, name, category, cost, sell, margin%, vendor, on-hand qty",
+    "Create src/app/(dashboard)/products/[id]/page.tsx with product detail page",
+    "Include cost history chart, vendor sources, inventory by location, order history"
+  ],
+  "files": ["src/lib/services/product.service.ts", "src/app/api/products/route.ts", "src/app/api/products/[id]/route.ts", "src/app/(dashboard)/products/page.tsx", "src/app/(dashboard)/products/[id]/page.tsx"],
+  "dependencies": ["TASK-019", "TASK-021", "TASK-023"]
+}

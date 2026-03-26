@@ -1,0 +1,16 @@
+{
+  "id": "TASK-058",
+  "title": "Phase 12D: Exception center and daily close",
+  "description": "Build the global exception center page (centralized queue with priority, owner, SLA, resolution tracking) and daily close system (service and UI page for end-of-day reconciliation).",
+  "steps": [
+    "Create src/app/(dashboard)/exceptions/page.tsx with global exception center",
+    "Implement centralized queue: filter by category, severity, owner, SLA status, module",
+    "Display exception cards with priority, owner assignment, SLA countdown, resolution workflow",
+    "Create src/lib/services/daily-close.service.ts with daily close orchestration",
+    "Implement daily close checks: all routes complete, all COD reconciled, all exceptions addressed, inventory counts balanced",
+    "Create src/app/(dashboard)/daily-close/page.tsx with daily close page",
+    "Display checklist of close items with pass/fail status, blockers, and override capability"
+  ],
+  "files": ["src/app/(dashboard)/exceptions/page.tsx", "src/lib/services/daily-close.service.ts", "src/app/(dashboard)/daily-close/page.tsx"],
+  "dependencies": ["TASK-056"]
+}

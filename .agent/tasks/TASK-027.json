@@ -1,0 +1,14 @@
+{
+  "id": "TASK-027",
+  "title": "Phase 3D: Admin - operational config and user preferences",
+  "description": "Build operational configuration management page (status codes, reason codes, cutoff times, etc.) and user preferences page with API.",
+  "steps": [
+    "Create src/app/(dashboard)/admin/configuration/page.tsx with operational config management",
+    "Implement config sections: status codes, reason codes, cutoff times, delivery zones, truck types, material categories",
+    "Create src/app/(dashboard)/settings/preferences/page.tsx with user preferences page",
+    "Include preferences: theme, default branch, notification settings, table column defaults, dashboard layout",
+    "Create src/app/api/users/me/preferences/route.ts with GET and PUT endpoints"
+  ],
+  "files": ["src/app/(dashboard)/admin/configuration/page.tsx", "src/app/(dashboard)/settings/preferences/page.tsx", "src/app/api/users/me/preferences/route.ts"],
+  "dependencies": ["TASK-023"]
+}

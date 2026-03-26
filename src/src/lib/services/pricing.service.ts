@@ -31,14 +31,17 @@ export async function recordCostChange(
     data: { productId, oldCost, newCost, changePercent, source, vendorId, changedBy: actorId },
   });
 
-  // Update product current cost
+  // Fetch current sell price before updating
+  const currentProduct = await prisma.product.findUnique({ where: { id: productId }, select: { currentSell: true } });
+  const sellPrice = currentProduct ? Number(currentProduct.currentSell) : 0;
+  const newMargin = sellPrice > 0 ? ((sellPrice - newCost) / sellPrice) * 100 : 0;
+
+  // Update product current cost and recalculated margin
   const product = await prisma.product.update({
     where: { id: productId },
     data: {
       currentCost: newCost,
-      marginPercent: Number(product_sell(productId)) > 0
-        ? ((Number(product_sell(productId)) - newCost) / Number(product_sell(productId))) * 100
-        : 0,
+      marginPercent: newMargin,
     },
   });
 
@@ -76,7 +79,3 @@ export async function getQuotesAtRisk() {
   });
 }
 
-async function product_sell(productId: string): Promise<number> {
-  const p = await prisma.product.findUnique({ where: { id: productId }, select: { currentSell: true } });
-  return p ? Number(p.currentSell) : 0;
-}

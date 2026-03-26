@@ -1,0 +1,17 @@
+{
+  "id": "TASK-050",
+  "title": "Phase 10A: Pricing module - quote exposure, price history, simulator, margin waterfall",
+  "description": "Build pricing module secondary UI: open quote exposure list, price history viewer, quote simulator with bulk impact analysis, and margin waterfall chart.",
+  "steps": [
+    "Create src/app/(dashboard)/pricing/quotes-at-risk/page.tsx with open quote exposure list",
+    "Show quotes affected by cost changes with estimated margin impact",
+    "Create src/components/pricing/price-history.tsx with price history viewer chart",
+    "Display cost and sell price trends over time with Recharts",
+    "Create src/components/pricing/quote-simulator.tsx with quote simulation tool",
+    "Implement bulk impact analysis: what-if scenarios for price changes across product groups",
+    "Create src/components/pricing/margin-waterfall.tsx with margin waterfall chart (Recharts)",
+    "Show margin decomposition: list price -> customer price -> cost -> margin"
+  ],
+  "files": ["src/app/(dashboard)/pricing/quotes-at-risk/page.tsx", "src/components/pricing/price-history.tsx", "src/components/pricing/quote-simulator.tsx", "src/components/pricing/margin-waterfall.tsx"],
+  "dependencies": ["TASK-049"]
+}

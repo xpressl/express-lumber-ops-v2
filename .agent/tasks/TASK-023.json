@@ -1,0 +1,16 @@
+{
+  "id": "TASK-023",
+  "title": "Phase 3B: Dashboard layout - sidebar, topbar, mobile nav",
+  "description": "Build the main authenticated dashboard layout with role-aware collapsible sidebar, top bar with user menu/notifications/branch selector/search, and mobile responsive shell with bottom navigation.",
+  "steps": [
+    "Create src/app/(dashboard)/layout.tsx with main dashboard layout shell",
+    "Create src/components/layout/sidebar.tsx with role-aware navigation",
+    "Implement collapsible sidebar with module icons, active state, section grouping",
+    "Create src/components/layout/topbar.tsx with user menu, notification bell, branch selector, search trigger",
+    "Create src/components/layout/mobile-nav.tsx with bottom navigation for mobile roles",
+    "Implement responsive breakpoints (sidebar hidden on mobile, bottom nav shown)",
+    "Apply industrial-utilitarian aesthetic with dark mode as primary"
+  ],
+  "files": ["src/app/(dashboard)/layout.tsx", "src/components/layout/sidebar.tsx", "src/components/layout/topbar.tsx", "src/components/layout/mobile-nav.tsx"],
+  "dependencies": ["TASK-022"]
+}

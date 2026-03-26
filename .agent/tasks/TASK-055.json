@@ -1,0 +1,16 @@
+{
+  "id": "TASK-055",
+  "title": "Phase 12A: Universal search - service, API, command palette",
+  "description": "Build universal search: search service querying across all entities (orders, invoices, POs, customers, products, trucks, etc.), search API route, and enhanced command palette with recent items, pinned records, and quick actions.",
+  "steps": [
+    "Create src/lib/services/search.service.ts with multi-entity search",
+    "Implement search across: orders, customers, products, trucks, POs, invoices, receiving records",
+    "Return typed results with entity type, title, subtitle, and link",
+    "Implement relevance ranking and fuzzy matching",
+    "Create src/app/api/search/route.ts with search API endpoint",
+    "Enhance src/components/shared/search-command.tsx (from Phase 1) with full functionality",
+    "Implement recent items persistence, pinned records, and quick action shortcuts"
+  ],
+  "files": ["src/lib/services/search.service.ts", "src/app/api/search/route.ts", "src/components/shared/search-command.tsx"],
+  "dependencies": ["TASK-032", "TASK-029", "TASK-030"]
+}

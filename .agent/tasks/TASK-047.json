@@ -1,0 +1,18 @@
+{
+  "id": "TASK-047",
+  "title": "Phase 9: CRM backend - CRM service, estimate service, API routes",
+  "description": "Build CRM backend: CRM service with leads management, follow-ups, dormant customer detection, and cross-sell rules; estimate service with CRUD, line items, margin calculation, and expiration tracking; and all CRM API routes.",
+  "steps": [
+    "Create src/lib/services/crm.service.ts with lead lifecycle management (NEW -> CONTACTED -> ESTIMATE_SENT -> FOLLOW_UP -> NEGOTIATION -> WON -> LOST)",
+    "Implement follow-up scheduling and tracking",
+    "Implement dormant customer detection (configurable inactivity threshold)",
+    "Implement cross-sell rule engine ('buys X but not Y' pattern matching)",
+    "Create src/lib/services/estimate.service.ts with estimate CRUD, line item management",
+    "Implement margin calculation and expiration tracking",
+    "Create src/app/api/crm/leads/route.ts with lead management",
+    "Create src/app/api/crm/estimates/route.ts with estimate management",
+    "Create src/app/api/crm/follow-ups/route.ts with follow-up queue"
+  ],
+  "files": ["src/lib/services/crm.service.ts", "src/lib/services/estimate.service.ts", "src/app/api/crm/leads/route.ts", "src/app/api/crm/estimates/route.ts", "src/app/api/crm/follow-ups/route.ts"],
+  "dependencies": ["TASK-029", "TASK-030"]
+}

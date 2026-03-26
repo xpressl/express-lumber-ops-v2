@@ -1,0 +1,20 @@
+{
+  "id": "TASK-032",
+  "title": "Phase 4C: Order module - UI (list, detail, form, items editor, status controls, timeline, pack slip)",
+  "description": "Build the complete order UI: order list page, order detail page with items/status/timeline/exceptions/attachments, create/edit order form, order items editor with readiness indicators, status controls with transition buttons, event timeline, and printable pack slip.",
+  "steps": [
+    "Create src/app/(dashboard)/orders/page.tsx with order list DataTable",
+    "Implement filters: status, customer, branch, date range, delivery type, has-exceptions",
+    "Create src/app/(dashboard)/orders/[id]/page.tsx with order detail page",
+    "Include sections: header/status, items table, timeline, exceptions, attachments",
+    "Create src/components/orders/order-form.tsx with create/edit order form",
+    "Include customer selector, delivery type, delivery date, notes, PO number",
+    "Create src/components/orders/order-items-editor.tsx with line item management",
+    "Show product search, quantity, pricing, readiness indicator per item",
+    "Create src/components/orders/order-status-controls.tsx with state transition buttons",
+    "Create src/components/orders/order-timeline.tsx with audit event timeline",
+    "Create src/components/orders/pack-slip.tsx with printable pack slip / load summary"
+  ],
+  "files": ["src/app/(dashboard)/orders/page.tsx", "src/app/(dashboard)/orders/[id]/page.tsx", "src/components/orders/order-form.tsx", "src/components/orders/order-items-editor.tsx", "src/components/orders/order-status-controls.tsx", "src/components/orders/order-timeline.tsx", "src/components/orders/pack-slip.tsx"],
+  "dependencies": ["TASK-031"]
+}

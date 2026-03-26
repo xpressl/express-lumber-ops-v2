@@ -17,7 +17,7 @@ export const POST = apiHandler(async (request, { params, user }) => {
   const body = schema.parse(await request.json());
 
   if (body.action === "arrive") {
-    const stop = await arriveAtStop(id, body.lat, body.lng);
+    const stop = await arriveAtStop(id, body.lat, body.lng, user.id);
     return jsonResponse(stop);
   }
 

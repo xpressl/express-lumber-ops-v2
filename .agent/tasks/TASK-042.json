@@ -1,0 +1,17 @@
+{
+  "id": "TASK-042",
+  "title": "Phase 7A: GPS tracking and geofence services",
+  "description": "Build GPS tracking service for real-time driver location updates and geofence service for automatic arrival/departure detection at delivery stops.",
+  "steps": [
+    "Create src/lib/services/gps-tracking.ts with GPS tracking service",
+    "Implement periodic location reporting from driver device",
+    "Store location history with timestamp, accuracy, speed, heading",
+    "Broadcast location updates via Socket.io to dispatch",
+    "Create src/lib/services/geofence.ts with geofence service",
+    "Implement circular geofence zones around delivery addresses",
+    "Auto-detect arrival (enter geofence) and departure (exit geofence)",
+    "Trigger stop status updates and notifications on geofence events"
+  ],
+  "files": ["src/lib/services/gps-tracking.ts", "src/lib/services/geofence.ts"],
+  "dependencies": ["TASK-034"]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "TASK-021",
+  "title": "Phase 2D: TypeScript type definitions for all domains",
+  "description": "Create TypeScript type definitions for all domains: core (User, Role, Permission), customer, order, dispatch, delivery, yard, receiving, collections, CRM, pricing, purchasing.",
+  "steps": [
+    "Create src/types/core.ts with User, Role, Permission, AuditEvent, Exception types",
+    "Create src/types/customer.ts with Customer, CustomerContact, CustomerTag types",
+    "Create src/types/order.ts with Order, OrderItem, OrderEvent types",
+    "Create src/types/dispatch.ts with Truck, Route, RouteStop types",
+    "Create src/types/delivery.ts with DeliveryProof, CODCollection, StopOutcome types",
+    "Create src/types/yard.ts with YardTask, BayStatus types",
+    "Create src/types/receiving.ts with ReceivingRecord, ReceivingLine types",
+    "Create src/types/collections.ts with CollectionAccount, PromiseToPay, Dispute types",
+    "Create src/types/crm.ts with Lead, Estimate types",
+    "Create src/types/pricing.ts with PriceImport, CostChange types",
+    "Create src/types/purchasing.ts with PurchaseOrder, VendorInvoice, MatchException types"
+  ],
+  "files": ["src/types/core.ts", "src/types/customer.ts", "src/types/order.ts", "src/types/dispatch.ts", "src/types/delivery.ts", "src/types/yard.ts", "src/types/receiving.ts", "src/types/collections.ts", "src/types/crm.ts", "src/types/pricing.ts", "src/types/purchasing.ts"],
+  "dependencies": ["TASK-018"]
+}

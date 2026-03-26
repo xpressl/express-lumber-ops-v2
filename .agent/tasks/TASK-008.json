@@ -1,0 +1,20 @@
+{
+  "id": "TASK-008",
+  "title": "Phase 1B: Database schema - platform core models and enums",
+  "description": "Define all platform core Prisma models and enums: User, UserProfile, Location, Role, Permission, RolePermission, UserRoleAssignment, AccessScope, FeatureFlag, FeatureFlagAssignment, ApprovalPolicy, ApprovalRequest, ApprovalStep, AuditEvent, SecurityEvent, Exception, BranchSetting, UserPreference, and all supporting enums.",
+  "steps": [
+    "Create prisma/schema.prisma with datasource and generator config",
+    "Define all enums: UserStatus, RoleType, PermissionType, ScopeType, ApprovalStatus, SeverityLevel, ExceptionStatus, etc.",
+    "Define User, UserProfile, Location models with relationships",
+    "Define Role, Permission, RolePermission models with RBAC structure",
+    "Define UserRoleAssignment, AccessScope models for scoped access",
+    "Define FeatureFlag, FeatureFlagAssignment models",
+    "Define ApprovalPolicy, ApprovalRequest, ApprovalStep models",
+    "Define AuditEvent, SecurityEvent models for audit trail",
+    "Define Exception model for exception engine",
+    "Define BranchSetting, UserPreference models",
+    "Verify schema with prisma validate"
+  ],
+  "files": ["prisma/schema.prisma"],
+  "dependencies": ["TASK-007"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "TASK-012",
+  "title": "Phase 1D: API middleware (auth, RBAC, rate-limit, error, pagination, validation, scope)",
+  "description": "Build all API middleware: auth middleware (session/JWT validation), RBAC middleware (role + permission checks), rate limiting, standard error handling, pagination helper, Zod validation wrapper, and scope filtering helper.",
+  "steps": [
+    "Create src/lib/middleware/auth.ts with session check and JWT validation middleware",
+    "Create src/lib/middleware/rbac.ts with role and permission check middleware (composable)",
+    "Create src/lib/middleware/rate-limit.ts with Redis-backed rate limiting",
+    "Create src/lib/middleware/error-handler.ts with standard error format ({error, message, details, statusCode})",
+    "Create src/lib/middleware/pagination.ts with cursor and offset pagination helpers",
+    "Create src/lib/middleware/validate.ts with Zod schema validation wrapper for request body/query/params",
+    "Create src/lib/middleware/scope-filter.ts with automatic Prisma where-clause injection based on user scope"
+  ],
+  "files": ["src/lib/middleware/auth.ts", "src/lib/middleware/rbac.ts", "src/lib/middleware/rate-limit.ts", "src/lib/middleware/error-handler.ts", "src/lib/middleware/pagination.ts", "src/lib/middleware/validate.ts", "src/lib/middleware/scope-filter.ts"],
+  "dependencies": ["TASK-010"]
+}

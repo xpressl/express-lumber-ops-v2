@@ -1,0 +1,16 @@
+{
+  "id": "TASK-026",
+  "title": "Phase 3D: Admin - feature flags and branch settings",
+  "description": "Build feature flag management: list page, detail page with assignments by company/branch/role/user, API routes, and service. Build branch settings page with API.",
+  "steps": [
+    "Create src/lib/services/feature-flag.service.ts with flag CRUD, assignment management",
+    "Create src/app/api/feature-flags/route.ts with GET and POST endpoints",
+    "Create src/app/api/feature-flags/[id]/route.ts with GET, PUT, DELETE endpoints",
+    "Create src/app/(dashboard)/admin/feature-flags/page.tsx with flag list page",
+    "Create src/app/(dashboard)/admin/feature-flags/[id]/page.tsx with flag detail and assignment editor",
+    "Create src/app/(dashboard)/admin/settings/page.tsx with branch settings page",
+    "Create src/app/api/settings/branch/route.ts with branch settings API"
+  ],
+  "files": ["src/lib/services/feature-flag.service.ts", "src/app/api/feature-flags/route.ts", "src/app/api/feature-flags/[id]/route.ts", "src/app/(dashboard)/admin/feature-flags/page.tsx", "src/app/(dashboard)/admin/feature-flags/[id]/page.tsx", "src/app/(dashboard)/admin/settings/page.tsx", "src/app/api/settings/branch/route.ts"],
+  "dependencies": ["TASK-023"]
+}

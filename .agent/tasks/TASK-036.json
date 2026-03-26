@@ -1,0 +1,16 @@
+{
+  "id": "TASK-036",
+  "title": "Phase 5B: Pickup module - service, API, queue page, pickup card, arrival check-in",
+  "description": "Build the complete pickup module: pickup service with queue management, arrival check-in, prep timer, and handoff; API routes; pickup queue page; pickup card component; and customer arrival check-in flow.",
+  "steps": [
+    "Create src/lib/services/pickup.service.ts with queue management, arrival check-in, prep timer tracking, handoff confirmation",
+    "Create src/app/api/pickups/route.ts with GET (queue) and POST (create ticket)",
+    "Create src/app/api/pickups/[id]/route.ts with GET, PUT (status update, check-in, handoff)",
+    "Create src/app/(dashboard)/pickup/page.tsx with pickup queue board",
+    "Display by status: NOT_READY, READY, CUSTOMER_ARRIVED, LOADING, COMPLETE",
+    "Create src/components/pickup/pickup-card.tsx with lane, bay, customer, prep timer, handoff button",
+    "Create src/components/pickup/arrival-checkin.tsx with customer arrival check-in flow"
+  ],
+  "files": ["src/lib/services/pickup.service.ts", "src/app/api/pickups/route.ts", "src/app/api/pickups/[id]/route.ts", "src/app/(dashboard)/pickup/page.tsx", "src/components/pickup/pickup-card.tsx", "src/components/pickup/arrival-checkin.tsx"],
+  "dependencies": ["TASK-031"]
+}

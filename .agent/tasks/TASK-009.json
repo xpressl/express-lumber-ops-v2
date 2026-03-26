@@ -1,0 +1,18 @@
+{
+  "id": "TASK-009",
+  "title": "Phase 1B: Initial migration, seed admin user, default roles/permissions",
+  "description": "Run the initial Prisma migration for platform core models. Create seed script with admin user, default roles (SUPER_ADMIN, BRANCH_MANAGER, DISPATCHER, DRIVER, YARD_WORKER, RECEIVER, COLLECTOR, SALES_REP, PRICING_ANALYST, PURCHASING_AGENT, AR_CLERK, VIEWER), default permissions, and a sample location.",
+  "steps": [
+    "Run prisma migrate dev to create initial migration",
+    "Create prisma/seed.ts with seed data",
+    "Seed default roles with descriptions and hierarchy",
+    "Seed default permissions organized by module (orders, dispatch, delivery, yard, receiving, collections, crm, pricing, purchasing, admin)",
+    "Seed role-permission assignments for each default role",
+    "Seed admin user (admin@expresslumber.com) with SUPER_ADMIN role",
+    "Seed a sample location/branch",
+    "Configure package.json prisma.seed command",
+    "Run prisma db seed and verify"
+  ],
+  "files": ["prisma/seed.ts", "prisma/migrations/", "package.json"],
+  "dependencies": ["TASK-008"]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "TASK-053",
+  "title": "Phase 11: Bridge/import engine backend - parsers, mapping, confidence scoring",
+  "description": "Build the import engine backend: core import engine service, CSV/XLSX/PDF parsers, field mapping template service, confidence scoring engine, and import API routes.",
+  "steps": [
+    "Create src/lib/bridge/import-engine.ts with import orchestration (file parsing, mapping, dedup, staging, approval)",
+    "Create src/lib/bridge/parsers/csv-parser.ts with CSV file parsing and column detection",
+    "Create src/lib/bridge/parsers/xlsx-parser.ts with XLSX file parsing and sheet selection",
+    "Create src/lib/bridge/parsers/pdf-parser.ts with PDF parsing via Claude AI extraction",
+    "Create src/lib/bridge/mapping-templates.ts with field mapping template management",
+    "Support saved templates per import type (customers, products, prices, POs, invoices)",
+    "Create src/lib/bridge/confidence.ts with confidence scoring engine",
+    "Score each row/field on match quality, flag low-confidence for manual review",
+    "Create src/app/api/imports/route.ts with import job management",
+    "Create src/app/api/imports/[id]/route.ts with import detail and row management",
+    "Create src/app/api/imports/[id]/approve/route.ts with import approval"
+  ],
+  "files": ["src/lib/bridge/import-engine.ts", "src/lib/bridge/parsers/csv-parser.ts", "src/lib/bridge/parsers/xlsx-parser.ts", "src/lib/bridge/parsers/pdf-parser.ts", "src/lib/bridge/mapping-templates.ts", "src/lib/bridge/confidence.ts", "src/app/api/imports/route.ts", "src/app/api/imports/[id]/route.ts", "src/app/api/imports/[id]/approve/route.ts"],
+  "dependencies": ["TASK-018"]
+}

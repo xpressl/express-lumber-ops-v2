@@ -1,0 +1,17 @@
+{
+  "id": "TASK-054",
+  "title": "Phase 11: Bridge/import engine UI - upload, review, reconciliation, history",
+  "description": "Build import engine UI: import upload page with file upload and type selection, import review page with side-by-side diff and per-row approve/reject, reconciliation dashboard with health scores, and import history page.",
+  "steps": [
+    "Create src/app/(dashboard)/imports/page.tsx with import upload page",
+    "Include file upload, import type selection, field mapping preview, template selection",
+    "Create src/app/(dashboard)/imports/[id]/page.tsx with import review page",
+    "Display side-by-side diff (source vs existing), confidence scores per row",
+    "Implement per-row approve/reject/skip with bulk actions",
+    "Create src/app/(dashboard)/imports/reconciliation/page.tsx with reconciliation dashboard",
+    "Show data health score by source, change tracking, drift detection",
+    "Create src/app/(dashboard)/imports/history/page.tsx with import job history"
+  ],
+  "files": ["src/app/(dashboard)/imports/page.tsx", "src/app/(dashboard)/imports/[id]/page.tsx", "src/app/(dashboard)/imports/reconciliation/page.tsx", "src/app/(dashboard)/imports/history/page.tsx"],
+  "dependencies": ["TASK-053"]
+}

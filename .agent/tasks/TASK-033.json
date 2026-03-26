@@ -1,0 +1,16 @@
+{
+  "id": "TASK-033",
+  "title": "Phase 4C: Seed realistic sample data (customers, products, orders)",
+  "description": "Update seed script with realistic building supply data: customers with various credit profiles, lumber/building products with real categories, and orders in various states across the state machine.",
+  "steps": [
+    "Update prisma/seed.ts with 20+ realistic customer records (contractors, builders, homeowners)",
+    "Include varied credit limits, payment terms, branch assignments, and contact info",
+    "Seed 50+ building supply products (lumber, hardware, roofing, siding, concrete, etc.)",
+    "Include realistic pricing, vendor assignments, and inventory balances",
+    "Seed 30+ orders across all states (DRAFT through COMPLETED, including ON_HOLD and CANCELLED)",
+    "Include order items, events, and audit trail for each order",
+    "Run prisma db seed and verify data integrity"
+  ],
+  "files": ["prisma/seed.ts"],
+  "dependencies": ["TASK-031"]
+}

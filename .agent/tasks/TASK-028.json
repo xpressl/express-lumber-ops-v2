@@ -1,0 +1,19 @@
+{
+  "id": "TASK-028",
+  "title": "Phase 3E: Admin - approvals, audit log, security events, access simulator",
+  "description": "Build approval policy management (list, editor with requester/approver roles, thresholds, escalation), audit log viewer, security event viewer, and access simulation tool.",
+  "steps": [
+    "Create src/lib/services/approval.service.ts with approval policy CRUD and request management",
+    "Create src/app/api/approvals/route.ts and src/app/api/approvals/[id]/route.ts",
+    "Create src/app/(dashboard)/admin/approvals/page.tsx with approval policy list",
+    "Create src/app/(dashboard)/admin/approvals/[id]/page.tsx with policy editor",
+    "Implement approval chain: requester roles, approver roles, thresholds, timeout, escalation rules",
+    "Create src/app/api/audit/route.ts with filterable audit log endpoint",
+    "Create src/app/(dashboard)/admin/audit-log/page.tsx with audit log viewer",
+    "Implement filters: actor, entity type, action, date range, branch",
+    "Create src/app/(dashboard)/admin/security/page.tsx with security event viewer",
+    "Create src/app/(dashboard)/admin/access-simulator/page.tsx to preview what a user/role can see"
+  ],
+  "files": ["src/lib/services/approval.service.ts", "src/app/api/approvals/route.ts", "src/app/api/approvals/[id]/route.ts", "src/app/(dashboard)/admin/approvals/page.tsx", "src/app/(dashboard)/admin/approvals/[id]/page.tsx", "src/app/api/audit/route.ts", "src/app/(dashboard)/admin/audit-log/page.tsx", "src/app/(dashboard)/admin/security/page.tsx", "src/app/(dashboard)/admin/access-simulator/page.tsx"],
+  "dependencies": ["TASK-023", "TASK-011"]
+}

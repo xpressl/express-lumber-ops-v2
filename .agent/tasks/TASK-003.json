@@ -1,0 +1,14 @@
+{
+  "id": "TASK-003",
+  "title": "Phase 0: Permissions, approvals, and event backbone docs",
+  "description": "Create PERMISSIONS-MATRIX.md with all permissions x roles x scopes. Create APPROVAL-POLICIES.md with approval workflows. Create EVENT-BACKBONE.md with all event types, producers, and consumers.",
+  "steps": [
+    "Write docs/PERMISSIONS-MATRIX.md with complete role-permission matrix",
+    "Define all permission types, scopes (company, branch, own), and role mappings",
+    "Write docs/APPROVAL-POLICIES.md with approval workflows for credit holds, price overrides, PO approvals, etc.",
+    "Write docs/EVENT-BACKBONE.md with all event types categorized by module",
+    "Document event producers, consumers, and side effects for each event type"
+  ],
+  "files": ["docs/PERMISSIONS-MATRIX.md", "docs/APPROVAL-POLICIES.md", "docs/EVENT-BACKBONE.md"],
+  "dependencies": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "TASK-031",
+  "title": "Phase 4C: Order module - service and API routes",
+  "description": "Build the order service with CRUD, state machine transitions, credit hold checking, and readiness rollup. Build all order API routes including items management and state transitions.",
+  "steps": [
+    "Create src/lib/services/order.service.ts with order CRUD",
+    "Implement state machine integration for order transitions",
+    "Implement credit hold check on order creation/confirmation",
+    "Implement readiness rollup (all items ready = order ready)",
+    "Create src/app/api/orders/route.ts with GET (list/search) and POST (create)",
+    "Create src/app/api/orders/[id]/route.ts with GET, PUT, DELETE",
+    "Create src/app/api/orders/[id]/items/route.ts with order item CRUD",
+    "Create src/app/api/orders/[id]/transition/route.ts with state transition endpoint",
+    "Integrate audit events on all state transitions"
+  ],
+  "files": ["src/lib/services/order.service.ts", "src/app/api/orders/route.ts", "src/app/api/orders/[id]/route.ts", "src/app/api/orders/[id]/items/route.ts", "src/app/api/orders/[id]/transition/route.ts"],
+  "dependencies": ["TASK-020", "TASK-029", "TASK-030"]
+}

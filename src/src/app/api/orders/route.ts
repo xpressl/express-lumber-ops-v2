@@ -4,7 +4,7 @@ import { parsePagination, paginatedResponse } from "@/lib/middleware/pagination"
 import { listOrders, createOrder } from "@/lib/services/order.service";
 import { createOrderSchema } from "@/lib/validators/order";
 
-export const GET = apiHandler(async (request) => {
+export const GET = apiHandler(async (request, { scopeFilter }) => {
   const url = new URL(request.url);
   const pagination = parsePagination(url);
   const result = await listOrders({
@@ -19,6 +19,7 @@ export const GET = apiHandler(async (request) => {
     page: pagination.page, limit: pagination.limit,
     sortBy: url.searchParams.get("sortBy") ?? undefined,
     sortOrder: (url.searchParams.get("sortOrder") as "asc" | "desc") ?? undefined,
+    scopeFilter,
   });
   return jsonResponse(paginatedResponse(result.data, result.total, pagination));
 }, { permission: "orders.view" });

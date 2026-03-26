@@ -1,0 +1,21 @@
+{
+  "id": "TASK-017",
+  "title": "Phase 2A: Database schema - operational models (Order, Truck, Route, Delivery, Yard, Receiving)",
+  "description": "Add operational models to Prisma schema: Order, OrderItem, OrderEvent with state machine enum; Truck, Route, RouteStop; DeliveryProof, CODCollection; PickupTicket; YardTask; ReceivingRecord, ReceivingLine, VerificationReview.",
+  "steps": [
+    "Add Order model with state machine status enum, customer/branch links, totals, dates",
+    "Add OrderItem model with product, quantity, pricing, readiness status",
+    "Add OrderEvent model for state transition audit trail",
+    "Add Truck model with capacity (weight, pieces, bundles, length), status, driver assignment",
+    "Add Route model with date, truck, sequence, profitability score",
+    "Add RouteStop model with order, sequence, ETA, status, outcome",
+    "Add DeliveryProof model with signature, photos, GPS, timestamp",
+    "Add CODCollection model with amount due, collected, payment type, shortage reason",
+    "Add PickupTicket model with customer, order, lane, bay, status, prep timer",
+    "Add YardTask model with type, priority, assignment, bay, status",
+    "Add ReceivingRecord, ReceivingLine, VerificationReview models",
+    "Define all operational enums (OrderStatus, StopOutcome, YardTaskType, ReceivingLineStatus, etc.)"
+  ],
+  "files": ["prisma/schema.prisma"],
+  "dependencies": ["TASK-016"]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "TASK-018",
+  "title": "Phase 2A: Database schema - support models (PO, Collections, CRM, Import, Attachments) + migration",
+  "description": "Add remaining models: PurchaseOrder, PurchaseOrderLine, VendorInvoice, MatchException, VendorClaim; Quote, QuoteLine; CollectionAccount, CollectionActivity, PromiseToPay, Dispute, PaymentPlan; Lead, Estimate, EstimateLine; ImportJob, ImportChange; Attachment, CommunicationLog, NotificationTemplate. Run migration and update seed.",
+  "steps": [
+    "Add PurchaseOrder, PurchaseOrderLine, VendorInvoice models",
+    "Add MatchException and VendorClaim models for three-way match",
+    "Add Quote, QuoteLine models for pricing quotes",
+    "Add CollectionAccount, CollectionActivity, PromiseToPay, Dispute, PaymentPlan models",
+    "Add Lead, Estimate, EstimateLine models for CRM",
+    "Add ImportJob, ImportChange models for bridge/import engine",
+    "Add Attachment model (polymorphic, S3 reference)",
+    "Add CommunicationLog and NotificationTemplate models",
+    "Run prisma migrate dev for business models migration",
+    "Update prisma/seed.ts with sample business data (customers, products, vendors)"
+  ],
+  "files": ["prisma/schema.prisma", "prisma/seed.ts", "prisma/migrations/"],
+  "dependencies": ["TASK-017"]
+}

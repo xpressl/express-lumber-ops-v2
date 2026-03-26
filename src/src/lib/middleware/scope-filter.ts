@@ -1,7 +1,7 @@
-import { getUserLocationIds } from "@/lib/permissions/evaluate";
+import { getUserPermissions, getUserLocationIds } from "@/lib/permissions/evaluate";
 import type { SessionUser } from "@/lib/auth/options";
 
-/** Build a Prisma where-clause filter based on user scope */
+/** Build a Prisma where-clause filter based on user's resolved permission scope */
 export async function buildScopeFilter(
   user: SessionUser,
   permissionCode: string,
@@ -17,38 +17,52 @@ export async function buildScopeFilter(
     return {};
   }
 
-  // Check the most restrictive scope from the user's permissions
-  // For simplicity, use role-based scoping
-  const isBranchScoped = !user.roles.some((r) =>
-    ["GENERAL_MANAGER", "CREDIT_MANAGER", "AP_SUPPORT", "PRICING", "PURCHASING"].includes(r),
-  );
+  // Resolve the user's scope for this specific permission from the DB/cache
+  const permissions = await getUserPermissions(user.id);
+  const perm = permissions.find((p) => p.code === permissionCode);
 
-  if (isBranchScoped) {
-    const locationIds = await getUserLocationIds(user.id);
-    if (locationIds.length > 0) {
-      return { [locationField]: { in: locationIds } };
+  if (!perm) {
+    // No permission at all - restrict to nothing
+    return { id: "__no_access__" };
+  }
+
+  switch (perm.scopeType) {
+    case "ALL":
+      return {};
+
+    case "BRANCH": {
+      const locationIds = await getUserLocationIds(user.id);
+      if (locationIds.length > 0) {
+        return { [locationField]: { in: locationIds } };
+      }
+      if (user.defaultLocationId) {
+        return { [locationField]: user.defaultLocationId };
+      }
+      return {};
     }
-    // If user has no location assignments, restrict to default location
-    if (user.defaultLocationId) {
-      return { [locationField]: user.defaultLocationId };
+
+    case "OWN":
+      return { [ownerField]: user.id };
+
+    case "ASSIGNED":
+      return {
+        OR: [{ [ownerField]: user.id }, { assignedTo: user.id }],
+      };
+
+    case "TEAM": {
+      const locationIds = await getUserLocationIds(user.id);
+      if (locationIds.length > 0) {
+        return { [locationField]: { in: locationIds } };
+      }
+      return {};
     }
-  }
 
-  // OWN scope: only see records you created or are assigned to
-  const isOwnScoped = user.roles.some((r) => ["OUTSIDE_SALES"].includes(r));
-  if (isOwnScoped && !user.permissions.includes(permissionCode)) {
-    return { [ownerField]: user.id };
-  }
+    case "READ_ONLY":
+      return {};
 
-  // ASSIGNED scope: only see records assigned to you
-  const isAssignedScoped = user.roles.some((r) => ["DRIVER", "COLLECTIONS_REP"].includes(r));
-  if (isAssignedScoped) {
-    return {
-      OR: [{ [ownerField]: user.id }, { assignedTo: user.id }],
-    };
+    default:
+      return {};
   }
-
-  return {};
 }
 
 /** Add soft-delete filter (exclude deleted records) */

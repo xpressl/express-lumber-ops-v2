@@ -44,7 +44,15 @@ export async function createLead(input: {
 export async function updateLead(leadId: string, input: {
   status?: LeadStatus; assignedTo?: string; notes?: string; lostReason?: string;
 }, actorId: string) {
-  return prisma.lead.update({ where: { id: leadId }, data: input });
+  const lead = await prisma.lead.update({ where: { id: leadId }, data: input });
+
+  await createAuditEvent({
+    actorId, actorName: actorId, action: "crm.lead_updated",
+    entityType: "Lead", entityId: lead.id, entityName: lead.companyName,
+    metadata: { status: input.status, assignedTo: input.assignedTo } as Record<string, unknown>,
+  });
+
+  return lead;
 }
 
 /** Create estimate */

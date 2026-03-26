@@ -1,0 +1,17 @@
+{
+  "id": "TASK-006",
+  "title": "Phase 1A: Tailwind v4, design tokens, and shadcn/ui primitives",
+  "description": "Configure Tailwind CSS v4 with design tokens via CSS variables matching the industrial-utilitarian aesthetic. Install all required shadcn/ui primitive components.",
+  "steps": [
+    "Configure tailwind.config.ts with custom theme (deep slate/zinc base, orange/amber accents)",
+    "Set up src/app/globals.css with CSS variable design tokens for colors, spacing, typography",
+    "Configure JetBrains Mono for data display and Instrument Sans for UI text",
+    "Install shadcn/ui primitives: Button, Card, Dialog, Table, Tabs, Select, Input, Badge, Toast",
+    "Install shadcn/ui primitives: Sheet, Command, Popover, Calendar, DropdownMenu, Avatar",
+    "Install shadcn/ui primitives: Separator, ScrollArea, Checkbox, RadioGroup, Switch, Tooltip",
+    "Install shadcn/ui primitives: AlertDialog, Form, Label, Textarea",
+    "Verify all components render with correct theme tokens"
+  ],
+  "files": ["tailwind.config.ts", "src/app/globals.css", "src/components/ui/*.tsx", "components.json"],
+  "dependencies": ["TASK-005"]
+}

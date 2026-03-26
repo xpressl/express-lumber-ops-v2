@@ -1,0 +1,19 @@
+{
+  "id": "TASK-057",
+  "title": "Phase 12C: Reports - service, API, report page, chart components",
+  "description": "Build reporting system: report service with data aggregation for all 16 report types, report API routes, reports page with selector/filters/export, and chart components for on-time delivery, route profitability, order cycle time, collector performance, vendor fill rate, price change impact, and 10 additional reports.",
+  "steps": [
+    "Create src/lib/services/report.service.ts with data aggregation for all report types",
+    "Create src/app/api/reports/[type]/route.ts with parameterized report endpoint",
+    "Create src/app/(dashboard)/reports/page.tsx with report selector, date range picker, branch filter, export to CSV/PDF",
+    "Create src/components/reports/on-time-delivery.tsx with on-time delivery chart",
+    "Create src/components/reports/route-profitability.tsx with route profitability chart",
+    "Create src/components/reports/order-cycle-time.tsx with order cycle time chart",
+    "Create src/components/reports/collector-performance.tsx with collector performance chart",
+    "Create src/components/reports/vendor-fill-rate.tsx with vendor fill rate chart",
+    "Create src/components/reports/price-change-impact.tsx with price change impact chart",
+    "Create 10 additional report components covering remaining report types"
+  ],
+  "files": ["src/lib/services/report.service.ts", "src/app/api/reports/[type]/route.ts", "src/app/(dashboard)/reports/page.tsx", "src/components/reports/on-time-delivery.tsx", "src/components/reports/route-profitability.tsx", "src/components/reports/order-cycle-time.tsx", "src/components/reports/collector-performance.tsx", "src/components/reports/vendor-fill-rate.tsx", "src/components/reports/price-change-impact.tsx"],
+  "dependencies": ["TASK-055"]
+}

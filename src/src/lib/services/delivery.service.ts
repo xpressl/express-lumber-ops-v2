@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditEvent } from "@/lib/events/audit";
 import { createException } from "@/lib/exceptions/engine";
 import { emitToRoom } from "@/lib/socket";
+import { transitionOrder } from "@/lib/services/order.service";
 import type { StopStatus, StopOutcome } from "@prisma/client";
 
 /** Get driver's current route and stops */
@@ -27,7 +28,7 @@ export async function getMyRoute(driverId: string) {
 }
 
 /** Mark stop as arrived */
-export async function arriveAtStop(stopId: string, lat: number, lng: number) {
+export async function arriveAtStop(stopId: string, lat: number, lng: number, actorId: string) {
   const stop = await prisma.routeStop.update({
     where: { id: stopId },
     data: { status: "ARRIVED", actualArrival: new Date(), geofenceEntered: true, geofenceLat: lat, geofenceLng: lng },
@@ -36,6 +37,13 @@ export async function arriveAtStop(stopId: string, lat: number, lng: number) {
   const route = await prisma.route.findFirst({ where: { stops: { some: { id: stopId } } } });
   if (route) {
     emitToRoom(`dispatch:${route.locationId}`, "stop:status-changed", { stopId, status: "ARRIVED", routeId: route.id });
+
+    await createAuditEvent({
+      actorId, actorName: actorId, action: "delivery.stop_arrived",
+      entityType: "RouteStop", entityId: stopId,
+      locationId: route.locationId,
+      metadata: { lat, lng } as Record<string, unknown>,
+    });
   }
 
   return stop;
@@ -64,14 +72,14 @@ export async function completeStop(stopId: string, outcome: StopOutcome, actorId
       },
     });
 
-    // Update order status
-    await prisma.order.update({
-      where: { id: stop.orderId },
-      data: {
-        status: outcome === "DELIVERED" ? "DELIVERED" : outcome === "REFUSED" ? "REFUSED" : "RESCHEDULED",
-        ...(outcome === "DELIVERED" ? { deliveredAt: new Date() } : {}),
-      },
-    });
+    // Update order status via state machine (enforces valid transitions + audit)
+    const targetStatus = outcome === "DELIVERED" ? "DELIVERED" : outcome === "REFUSED" ? "REFUSED" : "RESCHEDULED";
+    try {
+      await transitionOrder(stop.orderId, targetStatus, actorId, `Stop ${outcome}: ${notes ?? ""}`);
+    } catch {
+      // Log but don't fail the stop completion if transition fails
+      console.error(`[Delivery] Failed to transition order ${stop.orderId} to ${targetStatus}`);
+    }
 
     emitToRoom(`dispatch:${route.locationId}`, "stop:status-changed", {
       stopId, status: "COMPLETED", outcome, routeId: route.id,

@@ -1,0 +1,17 @@
+{
+  "id": "TASK-025",
+  "title": "Phase 3C: Admin - role and permission management (list, detail, create, API, service)",
+  "description": "Build role and permission management: role list page, role detail/edit with permission assignment matrix, create role dialog, role API routes, role service, and permission catalog page.",
+  "steps": [
+    "Create src/lib/services/role.service.ts with role CRUD, permission assignment, role hierarchy",
+    "Create src/app/api/roles/route.ts with GET (list) and POST (create) endpoints",
+    "Create src/app/api/roles/[id]/route.ts with GET, PUT, DELETE endpoints",
+    "Create src/app/(dashboard)/admin/roles/page.tsx with role list page",
+    "Create src/app/(dashboard)/admin/roles/[id]/page.tsx with role detail and permission matrix editor",
+    "Implement permission matrix: rows = permission categories, columns = actions (view, create, edit, delete, approve)",
+    "Create src/components/admin/create-role-dialog.tsx with role creation form",
+    "Create src/app/(dashboard)/admin/permissions/page.tsx with permission catalog (read-only reference)"
+  ],
+  "files": ["src/lib/services/role.service.ts", "src/app/api/roles/route.ts", "src/app/api/roles/[id]/route.ts", "src/app/(dashboard)/admin/roles/page.tsx", "src/app/(dashboard)/admin/roles/[id]/page.tsx", "src/components/admin/create-role-dialog.tsx", "src/app/(dashboard)/admin/permissions/page.tsx"],
+  "dependencies": ["TASK-023"]
+}

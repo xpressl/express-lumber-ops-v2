@@ -40,6 +40,13 @@ export async function createTask(input: {
     taskId: task.id, assigneeId: input.assignedTo, locationId: input.locationId,
   });
 
+  await createAuditEvent({
+    actorId, actorName: actorId, action: "yard.task_created",
+    entityType: "YardTask", entityId: task.id,
+    locationId: input.locationId,
+    metadata: { type: input.type, assignedTo: input.assignedTo } as Record<string, unknown>,
+  });
+
   return task;
 }
 
@@ -83,6 +90,13 @@ export async function assignTask(taskId: string, workerId: string, actorId: stri
 
   emitToRoom(`yard:${task.locationId}`, "task:assigned", {
     taskId: task.id, assigneeId: workerId, locationId: task.locationId,
+  });
+
+  await createAuditEvent({
+    actorId, actorName: actorId, action: "yard.task_assigned",
+    entityType: "YardTask", entityId: task.id,
+    locationId: task.locationId,
+    metadata: { assignedTo: workerId } as Record<string, unknown>,
   });
 
   return task;
